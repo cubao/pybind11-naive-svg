@@ -1,7 +1,15 @@
-import cubao_cmake_example as m
+from naive_svg import SVG, Circle, Polygon, Polyline, Text, add
 
 
-def test_main():
-    assert m.__version__ == "0.0.3"
-    assert m.add(1, 2) == 3
-    assert m.subtract(1, 2) == -1
+def test_add():
+    assert add(1, 2) == 3
+
+
+def test_svg():
+    svg = SVG(100, 100)
+    print(svg)
+
+    print(Polyline)
+    print(Polygon)
+    print(Circle)
+    print(Text)

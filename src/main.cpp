@@ -7,33 +7,20 @@ int add(int i, int j) { return i + j; }
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(pybind11_cubao_cmake_example, m)
+namespace cubao
 {
-    m.doc() = R"pbdoc(
-        Pybind11 example plugin
-        -----------------------
+void bind_naive_svg(py::module &m);
+}
 
-        .. currentmodule:: cmake_example
-
-        .. autosummary::
-           :toctree: _generate
-
-           add
-           subtract
-    )pbdoc";
-
+PYBIND11_MODULE(_naive_svg, m)
+{
     m.def("add", &add, R"pbdoc(
         Add two numbers
 
         Some other explanation about the add function.
     )pbdoc");
 
-    m.def(
-        "subtract", [](int i, int j) { return i - j; }, R"pbdoc(
-        Subtract two numbers
-
-        Some other explanation about the subtract function.
-    )pbdoc");
+    cubao::bind_naive_svg(m);
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);

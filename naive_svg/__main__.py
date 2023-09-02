@@ -1,4 +1,6 @@
-from cubao_cmake_example import *  # noqa: F403
+from naive_svg import *  # noqa: F403
+
+# TODO, same sample code
 
 if __name__ == "__main__":
     import fire

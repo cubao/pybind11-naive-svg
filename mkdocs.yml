@@ -1,9 +1,9 @@
-site_name: cmake-example
-site_url: https://cmake-example.readthedocs.io
-site_description: Example pybind11 module built with a CMake-based build system.
+site_name: naive-svg
+site_url: https://naive-svg.readthedocs.io
+site_description: naive svg writer
 site_author: district10
 
-repo_url: https://github.com/cubao/cmake_example
+repo_url: https://github.com/cubao/pybind11-naive-svg
 edit_uri: blob/master/docs/
 
 theme: material
