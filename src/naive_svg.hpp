@@ -378,6 +378,8 @@ struct SVG
         }
     }
 
+    SVG clone() const {}
+
     SETUP_FLUENT_API(SVG, double, width)
     SETUP_FLUENT_API(SVG, double, height)
     SETUP_FLUENT_API(SVG, double, grid_step)
