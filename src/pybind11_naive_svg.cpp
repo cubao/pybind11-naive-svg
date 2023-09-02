@@ -24,17 +24,17 @@ using RowVectorsNx2 = Eigen::Matrix<double, Eigen::Dynamic, 2, Eigen::RowMajor>;
 CUBAO_INLINE void bind_naive_svg(py::module &m)
 {
     py::class_<SVG::Polyline>(m, "Polyline", py::module_local()) //
-        //
+                                                                 //
         ;
 
     py::class_<SVG::Polygon>(m, "Polygon", py::module_local()) //
-        //
+                                                               //
         ;
     py::class_<SVG::Circle>(m, "Circle", py::module_local()) //
-        //
+                                                             //
         ;
     py::class_<SVG::Text>(m, "Text", py::module_local()) //
-        //
+                                                         //
         ;
 
     py::class_<SVG>(m, "SVG", py::module_local())

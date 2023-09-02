@@ -7,7 +7,8 @@ int add(int i, int j) { return i + j; }
 
 namespace py = pybind11;
 
-namespace cubao {
+namespace cubao
+{
 void bind_naive_svg(py::module &m);
 }
 
