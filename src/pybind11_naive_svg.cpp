@@ -38,7 +38,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
         ;
 
     py::class_<SVG>(m, "SVG", py::module_local())
-        .def(py::init<double, double>(), py::kw_only(), "width"_a, "height"_a)
+        .def(py::init<double, double>(), "width"_a, "height"_a)
         //
         ;
 }
