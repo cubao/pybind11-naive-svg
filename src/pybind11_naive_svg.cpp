@@ -21,10 +21,26 @@ using rvp = py::return_value_policy;
 
 using RowVectorsNx2 = Eigen::Matrix<double, Eigen::Dynamic, 2, Eigen::RowMajor>;
 
+// TODO, 各个类型的 from/to_json
+// svg 的 load/dump
+// svg extra attributes
+
 CUBAO_INLINE void bind_naive_svg(py::module &m)
 {
-    py::class_<SVG::Polyline>(m, "Polyline", py::module_local()) //
-                                                                 //
+    // https://github.com/gagan-bansal/geojson2svg
+    // https://milevski.co/geojson2svg/demo/lands.svg
+    // 还是转化到 ENU 下，更好。radius 的尺度是一致的, stroke 也更好调
+    py::class_<SVG::Polyline>(
+        m, "Polyline",
+        py::module_local()) //
+                            // .def(py::init([](const Eigen::Ref<const
+                            // RowVectorsNx2> &points) {
+                            //     std::vector<SVG::PointType> _(points.rows());
+                            //     Eigen::Map<RowVectorsNx2>(&_[0],
+                            //     points.rows(), 2) = points; return new
+                            //     SVG::Polyline(_);
+                            // }), "points"_a)
+                            //
         ;
 
     py::class_<SVG::Polygon>(m, "Polygon", py::module_local()) //

@@ -321,35 +321,27 @@ struct SVG
 
         static std::string html_escape(const std::string &text)
         {
-            const static std::vector<std::string> escapes = {
-                "&amp;", "&quot;", "&apos;", "&lt;", "&gt;"};
-            std::map<int, int> replace;
-            for (size_t pos = 0; pos != text.size(); ++pos) {
-                const char c = text[pos];
-                if (c == '&') {
-                    replace[pos] = 0;
-                } else if (c == '\"') {
-                    replace[pos] = 1;
-                } else if (c == '\'') {
-                    replace[pos] = 2;
-                } else if (c == '<') {
-                    replace[pos] = 3;
-                } else if (c == '>') {
-                    replace[pos] = 4;
-                }
-            }
-            if (replace.empty()) {
-                return text;
-            }
             std::string buffer;
-            buffer.reserve(text.size() + 6 * replace.size());
-            // TODO
-            for (size_t pos = 0; pos != text.size(); ++pos) {
-                auto itr = replace.find(text[pos]);
-                if (itr == replace.end()) {
-                    buffer.append(&text[pos], 1);
-                } else {
-                    buffer.append(escapes[itr->second]);
+            for (char c : text) {
+                switch (c) {
+                case '&':
+                    buffer.append("&amp;");
+                    break;
+                case '\"':
+                    buffer.append("&quot;");
+                    break;
+                case '\'':
+                    buffer.append("&apos;");
+                    break;
+                case '<':
+                    buffer.append("&lt;");
+                    break;
+                case '>':
+                    buffer.append("&gt;");
+                    break;
+                default:
+                    buffer.push_back(c);
+                    break;
                 }
             }
             return buffer;
@@ -388,10 +380,32 @@ struct SVG
     SETUP_FLUENT_API(SVG, Color, grid_color)
     SETUP_FLUENT_API(SVG, Color, background)
 
-    Polygon &add_polygon(const std::vector<PointType> &points)
+    Polyline &add(const Polyline &polyline)
     {
-        auto ptr = new Polygon(points);
+        auto ptr = new Polyline({});
+        *ptr = polyline;
+        elements_.push_back({ELEMENT::POLYLINE, (void *)ptr});
+        return *ptr;
+    }
+    Polygon &add(const Polygon &polygon)
+    {
+        auto ptr = new Polygon({});
+        *ptr = polygon;
         elements_.push_back({ELEMENT::POLYGON, (void *)ptr});
+        return *ptr;
+    }
+    Circle &add(const Circle &circle)
+    {
+        auto ptr = new Circle(circle.center());
+        *ptr = circle;
+        elements_.push_back({ELEMENT::CIRCLE, (void *)ptr});
+        return *ptr;
+    }
+    Text &add(const Text &text)
+    {
+        auto ptr = new Text(text.position(), "");
+        *ptr = text;
+        elements_.push_back({ELEMENT::TEXT, (void *)ptr});
         return *ptr;
     }
 
@@ -399,6 +413,13 @@ struct SVG
     {
         auto ptr = new Polyline(points);
         elements_.push_back({ELEMENT::POLYLINE, (void *)ptr});
+        return *ptr;
+    }
+
+    Polygon &add_polygon(const std::vector<PointType> &points)
+    {
+        auto ptr = new Polygon(points);
+        elements_.push_back({ELEMENT::POLYGON, (void *)ptr});
         return *ptr;
     }
 
