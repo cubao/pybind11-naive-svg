@@ -474,6 +474,9 @@ struct SVG
 
     void pop()
     {
+        if (elements_.empty()) {
+            return;
+        }
         auto del = elements_.back();
         elements_.pop_back();
         if (del.first == ELEMENT::POLYLINE) {
