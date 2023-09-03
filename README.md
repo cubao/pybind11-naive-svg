@@ -1,5 +1,7 @@
 # naive-svg
 
+Upgrated version of [svg.hpp](https://github.com/cubao/naive-svg/blob/master/svg.hpp).
+
 Online document: **[readthedocs](http://pybind11-naive-svg.readthedocs.io/)**
 
 <!--intro-start-->
