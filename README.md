@@ -1,6 +1,6 @@
 # naive-svg
 
-Online document: **[readthedocs](http://naive-svg.readthedocs.io/)**
+Online document: **[readthedocs](http://pybind11-naive-svg.readthedocs.io/)**
 
 <!--intro-start-->
 

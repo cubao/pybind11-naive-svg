@@ -578,8 +578,8 @@ struct SVG
         out << "<svg width='" << width_ << "' height='" << height_ << "'";
         if (view_box_.size() == 4) {
             out << " viewBox='" << view_box_[0] //
-                << " " << view_box_[1]           //
-                << " " << view_box_[2]           //
+                << " " << view_box_[1]          //
+                << " " << view_box_[2]          //
                 << " " << view_box_[3] << "'";
         }
         out << " xmlns='http://www.w3.org/2000/svg'"
