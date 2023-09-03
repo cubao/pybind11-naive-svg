@@ -395,10 +395,20 @@ struct SVG
   public:
     std::unique_ptr<SVG> clone() const
     {
-        std::unique_ptr<SVG> ptr(
-            new SVG(*this)); // std::make_unique<SVG>(*this);
-        // for (auto &pair: copy.elements_)
-        // elements_
+        // auto ptr = std::make_unique<SVG>(*this);
+        std::unique_ptr<SVG> ptr(new SVG(*this));
+        for (auto &pair : elements_) {
+            const auto type = pair.first;
+            if (type == ELEMENT::POLYGON) {
+                ptr->add(*(Polygon *)pair.second);
+            } else if (type == ELEMENT::POLYLINE) {
+                ptr->add(*(Polyline *)pair.second);
+            } else if (type == ELEMENT::CIRCLE) {
+                ptr->add(*(Circle *)pair.second);
+            } else if (type == ELEMENT::TEXT) {
+                ptr->add(*(Text *)pair.second);
+            }
+        }
         return ptr;
     }
 
@@ -467,6 +477,73 @@ struct SVG
         elements_.push_back({ELEMENT::TEXT, (void *)ptr});
         return *ptr;
     }
+
+    size_t num_elements() const { return elements_.size(); }
+
+    bool empty() const { return elements_.empty(); }
+
+    void pop()
+    {
+        auto del = elements_.back();
+        elements_.pop_back();
+        if (del.first == ELEMENT::POLYLINE) {
+            delete (Polyline *)del.second;
+        } else if (del.first == ELEMENT::POLYGON) {
+            delete (Polygon *)del.second;
+        } else if (del.first == ELEMENT::CIRCLE) {
+            delete (Circle *)del.second;
+        } else if (del.first == ELEMENT::TEXT) {
+            delete (Text *)del.second;
+        }
+    }
+
+    bool is_polyline(int index) const
+    {
+        return elements_.at(index % elements_.size()).first ==
+               ELEMENT::POLYLINE;
+    }
+    bool is_polygon(int index) const
+    {
+        return elements_.at(index % elements_.size()).first == ELEMENT::POLYGON;
+    }
+    bool is_circle(size_t index) const
+    {
+        return elements_.at(index % elements_.size()).first == ELEMENT::CIRCLE;
+    }
+    bool is_text(size_t index) const
+    {
+        return elements_.at(index % elements_.size()).first == ELEMENT::TEXT;
+    }
+
+    Polyline *as_polyline(int index)
+    {
+        if (!is_polyline(index)) {
+            return nullptr;
+        }
+        return (Polyline *)elements_.at(index % elements_.size()).second;
+    }
+    Polygon *as_polygon(int index)
+    {
+        if (!is_polygon(index)) {
+            return nullptr;
+        }
+        return (Polygon *)elements_.at(index % elements_.size()).second;
+    }
+    Circle *as_circle(int index)
+    {
+        if (!is_circle(index)) {
+            return nullptr;
+        }
+        return (Circle *)elements_.at(index % elements_.size()).second;
+    }
+    Text *as_text(int index)
+    {
+        if (!is_circle(index)) {
+            return nullptr;
+        }
+        return (Text *)elements_.at(index % elements_.size()).second;
+    }
+    // const version
 
     void write(std::ostream &out) const
     {

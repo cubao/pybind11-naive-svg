@@ -54,6 +54,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
         .def("invalid", &Color::invalid)
         .def("to_string", &Color::to_string)
 
+        .def("clone", &Color::clone)
         .def("__copy__",
              [](const Color &self, py::dict) -> Color {
                  // always deepcopy (maybe not good?)
@@ -110,6 +111,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                     SETUP_FLUENT_API_PYBIND(Polyline, std::string, attrs)
         //
         .def("to_string", &Polyline::to_string)
+        .def("clone", &Polyline::clone)
         .def("__copy__",
              [](const Polyline &self, py::dict) -> Polyline {
                  return self.clone();
@@ -154,6 +156,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                     SETUP_FLUENT_API_PYBIND(Polygon, std::string, attrs)
         //
         .def("to_string", &Polygon::to_string)
+        .def("clone", &Polygon::clone)
         .def("__copy__",
              [](const Polygon &self, py::dict) -> Polygon {
                  return self.clone();
@@ -195,6 +198,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                     SETUP_FLUENT_API_PYBIND(Circle, std::string, attrs)
         //
         .def("to_string", &Circle::to_string)
+        .def("clone", &Circle::clone)
         .def(
             "__copy__",
             [](const Circle &self, py::dict) -> Circle { return self.clone(); })
@@ -236,6 +240,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                     SETUP_FLUENT_API_PYBIND(Text, std::string, attrs)
         //
         .def("to_string", &Text::to_string)
+        .def("clone", &Text::clone)
         .def("__copy__",
              [](const Text &self, py::dict) -> Text { return self.clone(); })
         .def(
@@ -249,6 +254,12 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
 
     py::class_<SVG>(m, "SVG", py::module_local())
         .def(py::init<double, double>(), "width"_a, "height"_a)
+        //
+        .def("clone", &SVG::clone)
+        .def("__copy__", [](const SVG &self, py::dict) { return self.clone(); })
+        .def(
+            "__deepcopy__",
+            [](const SVG &self, py::dict) { return self.clone(); }, "memo"_a)
         //
         ;
 }
