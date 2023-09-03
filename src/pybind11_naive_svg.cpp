@@ -77,6 +77,22 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
              }),
              "points"_a)
         //
+        .def("to_numpy",
+             [](const Polyline &self) -> RowVectorsNx2 {
+                 auto &points = self.points();
+                 return Eigen::Map<const RowVectorsNx2>(&points[0][0],
+                                                        points.size(), 2);
+             })
+        .def(
+            "from_numpy",
+            [](Polyline &self,
+               const Eigen::Ref<const RowVectorsNx2> &points) -> Polyline & {
+                std::vector<SVG::PointType> _(points.rows());
+                Eigen::Map<RowVectorsNx2>(&_[0][0], points.rows(), 2) = points;
+                return self.points(_);
+            },
+            rvp::reference_internal) //
+        //
         SETUP_FLUENT_API_PYBIND(Polyline, Color, stroke)
             SETUP_FLUENT_API_PYBIND(Polyline, double, stroke_width)
                 SETUP_FLUENT_API_PYBIND(Polyline, Color, fill)
