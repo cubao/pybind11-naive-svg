@@ -213,11 +213,11 @@ struct SVG
         const double &x() const { return points_[0][0]; }
         Circle &y(double y)
         {
-            points_[0][0] = y;
+            points_[0][1] = y;
             return *this;
         }
-        double &y() { return points_[0][0]; }
-        const double &y() const { return points_[0][0]; }
+        double &y() { return points_[0][1]; }
+        const double &y() const { return points_[0][1]; }
 
         SETUP_FLUENT_API(Circle, double, r)
         SETUP_FLUENT_API_FOR_SVG_ELEMENT(Circle)
@@ -276,11 +276,11 @@ struct SVG
         const double &x() const { return points_[0][0]; }
         Text &y(double y)
         {
-            points_[0][0] = y;
+            points_[0][1] = y;
             return *this;
         }
-        double &y() { return points_[0][0]; }
-        const double &y() const { return points_[0][0]; }
+        double &y() { return points_[0][1]; }
+        const double &y() const { return points_[0][1]; }
 
         SETUP_FLUENT_API(Text, std::string, text)
         SETUP_FLUENT_API(Text, std::vector<std::string>, lines)
@@ -402,11 +402,13 @@ struct SVG
 
     SETUP_FLUENT_API(SVG, double, width)
     SETUP_FLUENT_API(SVG, double, height)
+    SETUP_FLUENT_API(SVG, std::vector<double>, view_box)
     SETUP_FLUENT_API(SVG, double, grid_step)
     SETUP_FLUENT_API(SVG, std::vector<double>, grid_x)
     SETUP_FLUENT_API(SVG, std::vector<double>, grid_y)
     SETUP_FLUENT_API(SVG, Color, grid_color)
     SETUP_FLUENT_API(SVG, Color, background)
+    SETUP_FLUENT_API(SVG, std::string, attrs)
 
     Polyline &add(const Polyline &polyline)
     {
@@ -487,32 +489,35 @@ struct SVG
 
     bool is_polyline(int index) const
     {
-        if (elements_.empty()) {
+        index = __index(index);
+        if (index < 0) {
             return false;
         }
-        return elements_.at(index % elements_.size()).first ==
-               ELEMENT::POLYLINE;
+        return elements_.at(index).first == ELEMENT::POLYLINE;
     }
     bool is_polygon(int index) const
     {
-        if (elements_.empty()) {
+        index = __index(index);
+        if (index < 0) {
             return false;
         }
-        return elements_.at(index % elements_.size()).first == ELEMENT::POLYGON;
+        return elements_.at(index).first == ELEMENT::POLYGON;
     }
     bool is_circle(size_t index) const
     {
-        if (elements_.empty()) {
+        index = __index(index);
+        if (index < 0) {
             return false;
         }
-        return elements_.at(index % elements_.size()).first == ELEMENT::CIRCLE;
+        return elements_.at(index).first == ELEMENT::CIRCLE;
     }
     bool is_text(size_t index) const
     {
-        if (elements_.empty()) {
+        index = __index(index);
+        if (index < 0) {
             return false;
         }
-        return elements_.at(index % elements_.size()).first == ELEMENT::TEXT;
+        return elements_.at(index).first == ELEMENT::TEXT;
     }
 
     Polyline *as_polyline(int index)
@@ -567,9 +572,15 @@ struct SVG
 
     void write(std::ostream &out) const
     {
-        out << "<svg width='" << width_ << "' height='" << height_ << "'"
-            << " xmlns='http://www.w3.org/2000/svg' "
-               "xmlns:xlink='http://www.w3.org/1999/xlink'";
+        out << "<svg width='" << width_ << "' height='" << height_ << "'";
+        if (view_box_.size() == 4) {
+            out << " view_box='" << view_box_[0] //
+                << " " << view_box_[1]           //
+                << " " << view_box_[2]           //
+                << " " << view_box_[3] << "'";
+        }
+        out << " xmlns='http://www.w3.org/2000/svg'"
+               " xmlns:xlink='http://www.w3.org/1999/xlink'";
         if (!attrs_.empty()) {
             out << " " << attrs_;
         }
@@ -625,7 +636,7 @@ struct SVG
         return ss.str();
     }
 
-    void save(const std::string &path) const
+    void dump(const std::string &path) const
     {
         std::ofstream file(path);
         write(file);
@@ -635,6 +646,8 @@ struct SVG
   private:
     // size
     double width_, height_;
+    // viewBox
+    std::vector<double> view_box_;
     // grid
     double grid_step_{-1.0};
     std::vector<double> grid_x_, grid_y_; // low, high, step
@@ -645,6 +658,17 @@ struct SVG
     std::string attrs_;
     // elements
     std::vector<std::pair<ELEMENT, void *>> elements_;
+
+    int __index(int index) const
+    {
+        if (index < 0) {
+            index += elements_.size();
+        }
+        if (0 <= index && index < elements_.size()) {
+            return index;
+        }
+        return -1;
+    }
 };
 
 inline std::ostream &operator<<(std::ostream &out, const SVG::Color &c)

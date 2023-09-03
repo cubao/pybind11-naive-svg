@@ -9,6 +9,7 @@
 #include <pybind11/eigen.h>
 #include <pybind11/iostream.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include "cubao_inline.hpp"
 #include "naive_svg.hpp"
@@ -20,10 +21,6 @@ using namespace pybind11::literals;
 using rvp = py::return_value_policy;
 
 using RowVectorsNx2 = Eigen::Matrix<double, Eigen::Dynamic, 2, Eigen::RowMajor>;
-
-// TODO, 各个类型的 from/to_json
-// svg 的 load/dump
-// svg extra attributes
 
 CUBAO_INLINE void bind_naive_svg(py::module &m)
 {
@@ -45,14 +42,10 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                       py::module_local()) //
         .def(py::init<int>(), "rgb"_a = -1)
         .def(py::init<int, int, int, float>(), "r"_a, "g"_a, "b"_a,
-             "a"_a = -1.f)
-        .def("r", [](const Color &self) { return self.r(); })
-        .def(
-            "r", [](Color &self, int r) { return self.r(r); },
-            rvp::reference_internal) //
-        SETUP_FLUENT_API_PYBIND(Color, int, g)
-            SETUP_FLUENT_API_PYBIND(Color, int, b)
-                SETUP_FLUENT_API_PYBIND(Color, float, a)
+             "a"_a = -1.f) SETUP_FLUENT_API_PYBIND(Color, int, r)
+            SETUP_FLUENT_API_PYBIND(Color, int, g)
+                SETUP_FLUENT_API_PYBIND(Color, int, b)
+                    SETUP_FLUENT_API_PYBIND(Color, float, a)
         .def("invalid", &Color::invalid)
         .def("to_string", &Color::to_string)
 
@@ -78,6 +71,8 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                             std::stoi(text.substr(i + 4, 2), nullptr, 16));
                     })
 
+        //
+        .def("__repr__", [](const Color &self) { return self.to_string(); })
         //
         ;
 
@@ -263,14 +258,16 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
             "__deepcopy__",
             [](const SVG &self, py::dict) { return self.clone(); }, "memo"_a)
         //
-        SETUP_FLUENT_API_PYBIND(SVG, double, width)               //
-        SETUP_FLUENT_API_PYBIND(SVG, double, height)              //
-        SETUP_FLUENT_API_PYBIND(SVG, double, grid_step)           //
-        SETUP_FLUENT_API_PYBIND(SVG, std::vector<double>, grid_x) //
-        SETUP_FLUENT_API_PYBIND(SVG, std::vector<double>, grid_y) //
-        SETUP_FLUENT_API_PYBIND(SVG, Color, grid_color)           //
-        SETUP_FLUENT_API_PYBIND(SVG, Color, background)           //
-                                                                  //
+        SETUP_FLUENT_API_PYBIND(SVG, double, width)                 //
+        SETUP_FLUENT_API_PYBIND(SVG, double, height)                //
+        SETUP_FLUENT_API_PYBIND(SVG, std::vector<double>, view_box) //
+        SETUP_FLUENT_API_PYBIND(SVG, double, grid_step)             //
+        SETUP_FLUENT_API_PYBIND(SVG, std::vector<double>, grid_x)   //
+        SETUP_FLUENT_API_PYBIND(SVG, std::vector<double>, grid_y)   //
+        SETUP_FLUENT_API_PYBIND(SVG, Color, grid_color)             //
+        SETUP_FLUENT_API_PYBIND(SVG, Color, background)             //
+        SETUP_FLUENT_API_PYBIND(SVG, std::string, attrs)            //
+                                                                    //
         .def("add", py::overload_cast<const Polyline &>(&SVG::add),
              "polyline"_a, rvp::reference_internal)
         .def("add", py::overload_cast<const Polygon &>(&SVG::add), //
@@ -282,7 +279,8 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
         //
         .def(
             "add_polyline",
-            [](SVG &self, const Eigen::Ref<const RowVectorsNx2> &points) {
+            [](SVG &self,
+               const Eigen::Ref<const RowVectorsNx2> &points) -> Polyline & {
                 std::vector<SVG::PointType> _(points.rows());
                 Eigen::Map<RowVectorsNx2>(&_[0][0], points.rows(), 2) = points;
                 return self.add_polyline(_);
@@ -290,7 +288,8 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
             "points"_a, rvp::reference_internal)
         .def(
             "add_polygon",
-            [](SVG &self, const Eigen::Ref<const RowVectorsNx2> &points) {
+            [](SVG &self,
+               const Eigen::Ref<const RowVectorsNx2> &points) -> Polygon & {
                 std::vector<SVG::PointType> _(points.rows());
                 Eigen::Map<RowVectorsNx2>(&_[0][0], points.rows(), 2) = points;
                 return self.add_polygon(_);
@@ -298,14 +297,14 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
             "points"_a, rvp::reference_internal)
         .def(
             "add_circle",
-            [](SVG &self, const Eigen::Vector2d &center, double r) {
+            [](SVG &self, const Eigen::Vector2d &center, double r) -> Circle & {
                 return self.add_circle({center[0], center[1]}, r);
             },
             "center"_a, py::kw_only(), "r"_a = 1.0, rvp::reference_internal)
         .def(
             "add_text",
             [](SVG &self, const Eigen::Vector2d &position,
-               const std::string &text, double fontsize) {
+               const std::string &text, double fontsize) -> Text & {
                 return self.add_text({position[0], position[1]}, text,
                                      fontsize);
             },
@@ -330,6 +329,8 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
         .def("as_text", py::overload_cast<int>(&SVG::as_text), "index"_a,
              rvp::reference_internal)
         //
+        .def("to_string", &SVG::to_string)
+        .def("dump", &SVG::dump, "path"_a)
         //
         ;
 }
