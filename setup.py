@@ -127,10 +127,10 @@ class CMakeBuild(build_ext):
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
     name="naive_svg",
-    version="0.0.1",
+    version="0.0.2",
     author="tzx",
     author_email="dvorak4tzx@gmail.com",
-    url="https://naive-svg.readthedocs.io",
+    url="https://pybind11-naive-svg.readthedocs.io",
     description="naive svg writer",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
