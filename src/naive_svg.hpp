@@ -113,18 +113,6 @@ struct SVG
 
     struct Element
     {
-        void fit_into(double xmin, double xmax, double ymin, double ymax, //
-                      double width, double height)
-        {
-            // fit bbox[xmin:xmax, ymin:ymax] into viewBox[0:width, 0:height]
-            double xspan = xmax - xmin;
-            double yspan = ymax - ymin;
-            for (auto &pt : points_) {
-                pt[0] = (pt[0] - xmin) / xspan * width;
-                pt[1] = (pt[1] - ymin) / yspan * height;
-            }
-        }
-
       protected:
         std::vector<PointType> points_;
         Color stroke_{COLOR::BLACK};
@@ -499,19 +487,31 @@ struct SVG
 
     bool is_polyline(int index) const
     {
+        if (elements_.empty()) {
+            return false;
+        }
         return elements_.at(index % elements_.size()).first ==
                ELEMENT::POLYLINE;
     }
     bool is_polygon(int index) const
     {
+        if (elements_.empty()) {
+            return false;
+        }
         return elements_.at(index % elements_.size()).first == ELEMENT::POLYGON;
     }
     bool is_circle(size_t index) const
     {
+        if (elements_.empty()) {
+            return false;
+        }
         return elements_.at(index % elements_.size()).first == ELEMENT::CIRCLE;
     }
     bool is_text(size_t index) const
     {
+        if (elements_.empty()) {
+            return false;
+        }
         return elements_.at(index % elements_.size()).first == ELEMENT::TEXT;
     }
 
@@ -538,12 +538,32 @@ struct SVG
     }
     Text *as_text(int index)
     {
-        if (!is_circle(index)) {
+        if (!is_text(index)) {
             return nullptr;
         }
         return (Text *)elements_.at(index % elements_.size()).second;
     }
     // const version
+    const Polyline *as_polyline(int index) const
+    {
+        return const_cast<const Polyline *>(
+            const_cast<SVG *>(this)->as_polyline(index));
+    }
+    const Polygon *as_polygon(int index) const
+    {
+        return const_cast<const Polygon *>(
+            const_cast<SVG *>(this)->as_polygon(index));
+    }
+    const Circle *as_circle(int index) const
+    {
+        return const_cast<const Circle *>(
+            const_cast<SVG *>(this)->as_circle(index));
+    }
+    const Text *as_text(int index) const
+    {
+        return const_cast<const Text *>(
+            const_cast<SVG *>(this)->as_text(index));
+    }
 
     void write(std::ostream &out) const
     {
@@ -594,19 +614,18 @@ struct SVG
         out << "\n</svg>";
     }
 
-    void save(std::string path) const
+    std::string to_string() const
+    {
+        std::stringstream ss;
+        write(ss);
+        return ss.str();
+    }
+
+    void save(const std::string &path) const
     {
         std::ofstream file(path);
         write(file);
         file.close();
-    }
-
-    void fit_to_bbox(double xmin, double xmax, double ymin, double ymax)
-    {
-        for (auto &pair : elements_) {
-            ((Element *)pair.second)
-                ->fit_into(xmin, ymax, ymin, ymax, width_, height_);
-        }
     }
 
   private:

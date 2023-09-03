@@ -35,7 +35,9 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
     .def(#VarName, [](const Klass &self) { return self.VarName(); })           \
         .def(                                                                  \
             #VarName,                                                          \
-            [](Klass &self, const VarType &v) { return self.VarName(v); },     \
+            [](Klass &self, const VarType &v) -> Klass & {                     \
+                return self.VarName(v);                                        \
+            },                                                                 \
             rvp::reference_internal)
 
     using Color = SVG::Color;
@@ -269,14 +271,14 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
         SETUP_FLUENT_API_PYBIND(SVG, Color, grid_color)           //
         SETUP_FLUENT_API_PYBIND(SVG, Color, background)           //
                                                                   //
-        .def("add", py::overload_cast<const Polyline &>(&SVG::add, py::const_),
+        .def("add", py::overload_cast<const Polyline &>(&SVG::add),
              "polyline"_a, rvp::reference_internal)
-        .def("add", py::overload_cast<const Polygon &>(&SVG::add, py::const_),
-             "polygon"_a, rvp::reference_internal)
-        .def("add", py::overload_cast<const Circle &>(&SVG::add, py::const_),
-             "circle"_a, rvp ::reference_internal)
-        .def("add", py::overload_cast<const Text &>(&SVG::add, py::const_),
-             "text"_a, rvp::reference_internal)
+        .def("add", py::overload_cast<const Polygon &>(&SVG::add), "polygon"_a,
+             rvp::reference_internal)
+        .def("add", py::overload_cast<const Circle &>(&SVG::add), "circle"_a,
+             rvp ::reference_internal)
+        .def("add", py::overload_cast<const Text &>(&SVG::add), "text"_a,
+             rvp::reference_internal)
         //
         .def(
             "add_polyline",
@@ -285,7 +287,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                 Eigen::Map<RowVectorsNx2>(&_[0][0], points.rows(), 2) = points;
                 return self.add_polyline(_);
             },
-            "points"_a, rvp::rerefence_internal)
+            "points"_a, rvp::reference_internal)
         .def(
             "add_polygon",
             [](SVG &self, const Eigen::Ref<const RowVectorsNx2> &points) {
@@ -293,7 +295,37 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                 Eigen::Map<RowVectorsNx2>(&_[0][0], points.rows(), 2) = points;
                 return self.add_polygon(_);
             },
-            "points"_a, rvp::rerefence_internal)
+            "points"_a, rvp::reference_internal)
+        .def(
+            "add_circle",
+            [](SVG &self, const Eigen::Vector2d &center, double r) {
+                return self.add_circle({center[0], center[1]}, r);
+            },
+            "center"_a, "r"_a = 1.0, rvp::reference_internal)
+        .def(
+            "add_text",
+            [](SVG &self, const Eigen::Vector2d &position,
+               const std::string &text, double fontsize) {
+                return self.add_text({position[0], position[1]}, text,
+                                     fontsize);
+            },
+            "position"_a, "text"_a, "fontsize"_a = 10.0,
+            rvp::reference_internal)
+        //
+        .def("num_elements", &SVG::num_elements)
+        .def("empty", &SVG::empty)
+        .def("pop", &SVG::pop)
+        //
+        .def("is_polyline", &SVG::is_polyline)
+        .def("is_polygon", &SVG::is_polygon)
+        .def("is_circle", &SVG::is_circle)
+        .def("is_text", &SVG::is_text)
+        //
+        .def("as_polyline", py::overload_cast<int>(&SVG::as_polyline),
+             "index"_a)
+        .def("as_polygon", py::overload_cast<int>(&SVG::as_polygon), "index"_a)
+        .def("as_circle", py::overload_cast<int>(&SVG::as_circle), "index"_a)
+        .def("as_text", py::overload_cast<int>(&SVG::as_text), "index"_a)
         //
         //
         ;
