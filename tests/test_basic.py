@@ -24,6 +24,7 @@ def test_svg():
     print(svg)
 
     c = svg.add_circle([40, 30], r=50)
+    assert isinstance(c, Circle)
     text = svg.to_string()
     print(text)
     assert "rgb(0,0,0)" in text
@@ -39,11 +40,21 @@ def test_svg():
     assert svg.is_circle(0)
     assert not svg.is_circle(1)
     assert svg.is_polyline(1)
-    svg.as_polyline(1).stroke(Color(0xFFAA00))
+    p = svg.as_polyline(1)
+    assert isinstance(p, Polyline)
+    p.stroke(Color(0xFFAA00))
     svg.grid_step(10.0)
 
     svg.view_box([20, 20, 40, 40])
-    svg.add_text([30, 40], text="hello")
+    t = svg.add_text([30, 40], text="hello")
+    assert isinstance(t, Text)
+
+    polygon = (
+        svg.add_polygon([[20, 20], [20, 30], [40, 30], [40, 20], [20, 20]])
+        .stroke(Color(0x0000FF))
+        .fill(Color(0xFF0000).a(0.1))
+    )
+    assert isinstance(polygon, Polygon)
 
     text = svg.to_string()
     print(text)
