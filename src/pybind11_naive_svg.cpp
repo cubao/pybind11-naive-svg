@@ -301,7 +301,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
             [](SVG &self, const Eigen::Vector2d &center, double r) {
                 return self.add_circle({center[0], center[1]}, r);
             },
-            "center"_a, "r"_a = 1.0, rvp::reference_internal)
+            "center"_a, py::kw_only(), "r"_a = 1.0, rvp::reference_internal)
         .def(
             "add_text",
             [](SVG &self, const Eigen::Vector2d &position,
@@ -309,7 +309,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                 return self.add_text({position[0], position[1]}, text,
                                      fontsize);
             },
-            "position"_a, "text"_a, "fontsize"_a = 10.0,
+            "position"_a, py::kw_only(), "text"_a, "fontsize"_a = 10.0,
             rvp::reference_internal)
         //
         .def("num_elements", &SVG::num_elements)

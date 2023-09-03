@@ -569,7 +569,11 @@ struct SVG
     {
         out << "<svg width='" << width_ << "' height='" << height_ << "'"
             << " xmlns='http://www.w3.org/2000/svg' "
-               "xmlns:xlink='http://www.w3.org/1999/xlink'>";
+               "xmlns:xlink='http://www.w3.org/1999/xlink'";
+        if (!attrs_.empty()) {
+            out << " " << attrs_;
+        }
+        out << ">";
         if (!background_.invalid()) {
             out << "\n\t<rect width='100%' height='100%' fill='" //
                 << background_                                   //
@@ -637,6 +641,8 @@ struct SVG
     Color grid_color_{COLOR::GRAY};
     // background
     Color background_{COLOR::NONE};
+    // attrs
+    std::string attrs_;
     // elements
     std::vector<std::pair<ELEMENT, void *>> elements_;
 };
