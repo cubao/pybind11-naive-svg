@@ -110,6 +110,22 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                  return new SVG::Polygon(_);
              }),
              "points"_a) //
+        //
+        .def("to_numpy",
+             [](const Polygon &self) -> RowVectorsNx2 {
+                 auto &points = self.points();
+                 return Eigen::Map<const RowVectorsNx2>(&points[0][0],
+                                                        points.size(), 2);
+             })
+        .def(
+            "from_numpy",
+            [](Polygon &self,
+               const Eigen::Ref<const RowVectorsNx2> &points) -> Polygon & {
+                std::vector<SVG::PointType> _(points.rows());
+                Eigen::Map<RowVectorsNx2>(&_[0][0], points.rows(), 2) = points;
+                return self.points(_);
+            },
+            rvp::reference_internal) //
         SETUP_FLUENT_API_PYBIND(Polygon, Color, stroke)
             SETUP_FLUENT_API_PYBIND(Polygon, double, stroke_width)
                 SETUP_FLUENT_API_PYBIND(Polygon, Color, fill)
@@ -125,6 +141,21 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                  return new SVG::Circle({center[0], center[1]}, r);
              }),
              "center"_a, "r"_a = 1.0) //
+
+        .def("center",
+             [](const Circle &self) -> Eigen::Vector2d {
+                 auto &c = self.center();
+                 return Eigen::Vector2d(c[0], c[1]);
+             })
+        .def(
+            "center",
+            [](Circle &self, const Eigen::Vector2d &center) -> Circle & {
+                return self.center({center[0], center[1]});
+            },
+            rvp::reference_internal) SETUP_FLUENT_API_PYBIND(Circle, double, x)
+            SETUP_FLUENT_API_PYBIND(Circle, double, y)
+                SETUP_FLUENT_API_PYBIND(Circle, double, r)
+        //
         SETUP_FLUENT_API_PYBIND(Circle, Color, stroke)
             SETUP_FLUENT_API_PYBIND(Circle, double, stroke_width)
                 SETUP_FLUENT_API_PYBIND(Circle, Color, fill)
@@ -141,9 +172,26 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                                       fontsize);
              }),
              "position"_a, "text"_a, "fontsize"_a = 10.0) //
-        SETUP_FLUENT_API_PYBIND(Circle, Color, stroke)
-            SETUP_FLUENT_API_PYBIND(Circle, double, stroke_width)
-                SETUP_FLUENT_API_PYBIND(Circle, Color, fill)
+                                                          //
+        .def("position",
+             [](const Text &self) -> Eigen::Vector2d {
+                 auto &p = self.position();
+                 return Eigen::Vector2d(p[0], p[1]);
+             })
+        .def(
+            "position",
+            [](Text &self, const Eigen::Vector2d &position) -> Text & {
+                return self.position({position[0], position[1]});
+            },
+            rvp::reference_internal)
+        //
+        SETUP_FLUENT_API_PYBIND(Text, std::string, text)
+            SETUP_FLUENT_API_PYBIND(Text, std::vector<std::string>, lines)
+                SETUP_FLUENT_API_PYBIND(Text, double, fontsize)
+        //
+        SETUP_FLUENT_API_PYBIND(Text, Color, stroke)
+            SETUP_FLUENT_API_PYBIND(Text, double, stroke_width)
+                SETUP_FLUENT_API_PYBIND(Text, Color, fill)
         //
         .def("to_string", &Text::to_string)
         //
