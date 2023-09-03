@@ -32,8 +32,8 @@ namespace cubao
 #ifndef SETUP_FLUENT_API_FOR_SVG_ELEMENT
 #define SETUP_FLUENT_API_FOR_SVG_ELEMENT(KlassType)                            \
     SETUP_FLUENT_API(KlassType, Color, stroke)                                 \
-    SETUP_FLUENT_API(KlassType, Color, fill)                                   \
-    SETUP_FLUENT_API(KlassType, double, stroke_width)
+    SETUP_FLUENT_API(KlassType, double, stroke_width)                          \
+    SETUP_FLUENT_API(KlassType, Color, fill)
 #endif
 
 struct SVG
