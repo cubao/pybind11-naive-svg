@@ -81,12 +81,13 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
             SETUP_FLUENT_API_PYBIND(Polyline, double, stroke_width)
                 SETUP_FLUENT_API_PYBIND(Polyline, Color, fill)
         //
+        .def("to_string", &Polyline::to_string)
+        //
         ;
 
     using Polygon = SVG::Polygon;
-    py::class_<>(m, "Polygon", py::module_local()) //
-                                                   //
-                                                   //
+    py::class_<Polygon>(m, "Polygon", py::module_local()) //
+                                                          //
         .def(py::init([](const Eigen::Ref<const RowVectorsNx2> &points) {
                  std::vector<SVG::PointType> _(points.rows());
                  Eigen::Map<RowVectorsNx2>(&_[0][0], points.rows(), 2) = points;
@@ -97,6 +98,9 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
             SETUP_FLUENT_API_PYBIND(Polygon, double, stroke_width)
                 SETUP_FLUENT_API_PYBIND(Polygon, Color, fill)
         //
+        .def("to_string", &Polygon::to_string)
+        //
+
         ;
 
     using Circle = SVG::Circle;
@@ -109,9 +113,24 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
             SETUP_FLUENT_API_PYBIND(Circle, double, stroke_width)
                 SETUP_FLUENT_API_PYBIND(Circle, Color, fill)
         //
+        .def("to_string", &Circle::to_string)
+        //
         ;
-    py::class_<SVG::Text>(m, "Text", py::module_local()) //
-                                                         //
+
+    using Text = SVG::Text;
+    py::class_<Text>(m, "Text", py::module_local()) //
+        .def(py::init([](const Eigen::Vector2d &position,
+                         const std::string &text, double fontsize) {
+                 return new SVG::Text({position[0], position[1]}, text,
+                                      fontsize);
+             }),
+             "position"_a, "text"_a, "fontsize"_a = 10.0) //
+        SETUP_FLUENT_API_PYBIND(Circle, Color, stroke)
+            SETUP_FLUENT_API_PYBIND(Circle, double, stroke_width)
+                SETUP_FLUENT_API_PYBIND(Circle, Color, fill)
+        //
+        .def("to_string", &Text::to_string)
+        //
         ;
 
     py::class_<SVG>(m, "SVG", py::module_local())

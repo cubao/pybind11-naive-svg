@@ -244,9 +244,10 @@ struct SVG
 
     struct Text : Element
     {
-        Text(const PointType &p, const std::string &text, int fontsize = 10.0)
+        Text(const PointType &position, const std::string &text,
+             int fontsize = 10.0)
         {
-            points_ = {p};
+            points_ = {position};
             text_ = text;
             fontsize_ = fontsize;
             fill_ = COLOR::BLACK;
