@@ -261,6 +261,41 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
             "__deepcopy__",
             [](const SVG &self, py::dict) { return self.clone(); }, "memo"_a)
         //
+        SETUP_FLUENT_API_PYBIND(SVG, double, width)               //
+        SETUP_FLUENT_API_PYBIND(SVG, double, height)              //
+        SETUP_FLUENT_API_PYBIND(SVG, double, grid_step)           //
+        SETUP_FLUENT_API_PYBIND(SVG, std::vector<double>, grid_x) //
+        SETUP_FLUENT_API_PYBIND(SVG, std::vector<double>, grid_y) //
+        SETUP_FLUENT_API_PYBIND(SVG, Color, grid_color)           //
+        SETUP_FLUENT_API_PYBIND(SVG, Color, background)           //
+                                                                  //
+        .def("add", py::overload_cast<const Polyline &>(&SVG::add, py::const_),
+             "polyline"_a, rvp::reference_internal)
+        .def("add", py::overload_cast<const Polygon &>(&SVG::add, py::const_),
+             "polygon"_a, rvp::reference_internal)
+        .def("add", py::overload_cast<const Circle &>(&SVG::add, py::const_),
+             "circle"_a, rvp ::reference_internal)
+        .def("add", py::overload_cast<const Text &>(&SVG::add, py::const_),
+             "text"_a, rvp::reference_internal)
+        //
+        .def(
+            "add_polyline",
+            [](SVG &self, const Eigen::Ref<const RowVectorsNx2> &points) {
+                std::vector<SVG::PointType> _(points.rows());
+                Eigen::Map<RowVectorsNx2>(&_[0][0], points.rows(), 2) = points;
+                return self.add_polyline(_);
+            },
+            "points"_a, rvp::rerefence_internal)
+        .def(
+            "add_polygon",
+            [](SVG &self, const Eigen::Ref<const RowVectorsNx2> &points) {
+                std::vector<SVG::PointType> _(points.rows());
+                Eigen::Map<RowVectorsNx2>(&_[0][0], points.rows(), 2) = points;
+                return self.add_polygon(_);
+            },
+            "points"_a, rvp::rerefence_internal)
+        //
+        //
         ;
 }
 } // namespace cubao
