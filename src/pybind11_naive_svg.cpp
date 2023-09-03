@@ -273,12 +273,12 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                                                                   //
         .def("add", py::overload_cast<const Polyline &>(&SVG::add),
              "polyline"_a, rvp::reference_internal)
-        .def("add", py::overload_cast<const Polygon &>(&SVG::add), "polygon"_a,
-             rvp::reference_internal)
-        .def("add", py::overload_cast<const Circle &>(&SVG::add), "circle"_a,
-             rvp ::reference_internal)
-        .def("add", py::overload_cast<const Text &>(&SVG::add), "text"_a,
-             rvp::reference_internal)
+        .def("add", py::overload_cast<const Polygon &>(&SVG::add), //
+             "polygon"_a, rvp::reference_internal)
+        .def("add", py::overload_cast<const Circle &>(&SVG::add), //
+             "circle"_a, rvp ::reference_internal)
+        .def("add", py::overload_cast<const Text &>(&SVG::add), //
+             "text"_a, rvp::reference_internal)
         //
         .def(
             "add_polyline",
@@ -322,10 +322,13 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
         .def("is_text", &SVG::is_text)
         //
         .def("as_polyline", py::overload_cast<int>(&SVG::as_polyline),
-             "index"_a)
-        .def("as_polygon", py::overload_cast<int>(&SVG::as_polygon), "index"_a)
-        .def("as_circle", py::overload_cast<int>(&SVG::as_circle), "index"_a)
-        .def("as_text", py::overload_cast<int>(&SVG::as_text), "index"_a)
+             "index"_a, rvp::reference_internal)
+        .def("as_polygon", py::overload_cast<int>(&SVG::as_polygon), "index"_a,
+             rvp::reference_internal)
+        .def("as_circle", py::overload_cast<int>(&SVG::as_circle), "index"_a,
+             rvp::reference_internal)
+        .def("as_text", py::overload_cast<int>(&SVG::as_text), "index"_a,
+             rvp::reference_internal)
         //
         //
         ;
