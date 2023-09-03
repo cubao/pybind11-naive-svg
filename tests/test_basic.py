@@ -39,9 +39,16 @@ def test_svg():
     assert svg.is_circle(0)
     assert not svg.is_circle(1)
     assert svg.is_polyline(1)
+    svg.as_polyline(1).stroke(Color(0xffaa00))
+    svg.grid_step(10.0)
+
+    svg.view_box([20, 20, 40, 40])
+    svg.add_text([30, 30], text="hello")
 
     text = svg.to_string()
     print(text)
+
+    assert not svg.is_circle(10)
 
     print(Polyline)
     print(Polygon)

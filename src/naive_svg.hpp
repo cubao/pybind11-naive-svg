@@ -506,7 +506,7 @@ struct SVG
         }
         return elements_.at(index).first == ELEMENT::POLYGON;
     }
-    bool is_circle(size_t index) const
+    bool is_circle(int index) const
     {
         index = __index(index);
         if (index < 0) {
@@ -514,7 +514,7 @@ struct SVG
         }
         return elements_.at(index).first == ELEMENT::CIRCLE;
     }
-    bool is_text(size_t index) const
+    bool is_text(int index) const
     {
         index = __index(index);
         if (index < 0) {
@@ -577,7 +577,7 @@ struct SVG
     {
         out << "<svg width='" << width_ << "' height='" << height_ << "'";
         if (view_box_.size() == 4) {
-            out << " view_box='" << view_box_[0] //
+            out << " viewBox='" << view_box_[0] //
                 << " " << view_box_[1]           //
                 << " " << view_box_[2]           //
                 << " " << view_box_[3] << "'";
@@ -608,11 +608,11 @@ struct SVG
             if (!grid_color_.invalid()) {
                 grid_color = grid_color_;
             }
-            for (double x = xmin; x < xmax; x += xstep) {
+            for (double x = xmin; x <= xmax; x += xstep) {
                 out << "\n\t"
                     << SVG::Polyline({{x, ymin}, {x, ymax}}).stroke(grid_color);
             }
-            for (double y = ymin; y < ymax; y += ystep) {
+            for (double y = ymin; y <= ymax; y += ystep) {
                 out << "\n\t"
                     << SVG::Polyline({{xmin, y}, {xmax, y}}).stroke(grid_color);
             }
