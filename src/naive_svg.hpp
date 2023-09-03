@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <memory>
 
 #include <fstream>
 #include <ostream>
@@ -33,7 +34,8 @@ namespace cubao
 #define SETUP_FLUENT_API_FOR_SVG_ELEMENT(KlassType)                            \
     SETUP_FLUENT_API(KlassType, Color, stroke)                                 \
     SETUP_FLUENT_API(KlassType, double, stroke_width)                          \
-    SETUP_FLUENT_API(KlassType, Color, fill)
+    SETUP_FLUENT_API(KlassType, Color, fill)                                   \
+    SETUP_FLUENT_API(KlassType, std::string, attrs)
 #endif
 
 struct SVG
@@ -94,6 +96,7 @@ struct SVG
             write(ss);
             return ss.str();
         }
+        Color clone() const { return *this; }
 
       private:
         int r_{-1}, g_{-1}, b_{-1};
@@ -127,6 +130,7 @@ struct SVG
         Color stroke_{COLOR::BLACK};
         double stroke_width_{1.0};
         Color fill_{COLOR::NONE};
+        std::string attrs_;
     };
 
     struct Polyline : Element
@@ -149,6 +153,9 @@ struct SVG
                 out << pt[0] << "," << pt[1] << " ";
             }
             out << "'";
+            if (!attrs_.empty()) {
+                out << " " << attrs_;
+            }
             out << " />";
         }
         std::string to_string() const
@@ -157,6 +164,8 @@ struct SVG
             write(ss);
             return ss.str();
         }
+
+        Polyline clone() const { return *this; }
     };
 
     struct Polygon : Element
@@ -178,6 +187,9 @@ struct SVG
                 out << pt[0] << "," << pt[1] << " ";
             }
             out << "'";
+            if (!attrs_.empty()) {
+                out << " " << attrs_;
+            }
             out << " />";
         }
         std::string to_string() const
@@ -186,6 +198,8 @@ struct SVG
             write(ss);
             return ss.str();
         }
+
+        Polygon clone() const { return *this; }
     };
 
     struct Circle : Element
@@ -228,8 +242,11 @@ struct SVG
                 << " cx='" << x() << "' cy='" << y() << "'" //
                 << " style='stroke:" << stroke_             //
                 << ";stroke-width:" << stroke_width_        //
-                << ";fill:" << fill_ << "'"                 //
-                << " />";
+                << ";fill:" << fill_ << "'";
+            if (!attrs_.empty()) {
+                out << " " << attrs_;
+            }
+            out << " />";
         }
         std::string to_string() const
         {
@@ -237,6 +254,8 @@ struct SVG
             write(ss);
             return ss.str();
         }
+
+        Circle clone() const { return *this; }
 
       protected:
         double r_{1.0};
@@ -280,16 +299,6 @@ struct SVG
         SETUP_FLUENT_API(Text, double, fontsize)
         SETUP_FLUENT_API_FOR_SVG_ELEMENT(Text)
 
-        //         // text-anchor="start"
-        //    <style>
-        // * {
-        //     stroke-width: 5px;
-        // }
-        // text {
-        //     font-size: 20px;
-        // }
-        //     </style>
-
         friend std::ostream &operator<<(std::ostream &out, const SVG::Text &e);
 
         void write(std::ostream &out) const
@@ -298,8 +307,11 @@ struct SVG
                 << " x='" << x() << "' y='" << y() << "'" //
                 << " fill='" << fill_ << "'"              //
                 << " font-size='" << fontsize_ << "'"     //
-                << " font-family='monospace'"             //
-                << ">" << html_escape(text_);
+                << " font-family='monospace'";
+            if (!attrs_.empty()) {
+                out << " " << attrs_;
+            }
+            out << ">" << html_escape(text_);
             if (!lines_.empty()) {
                 double fontsize = fontsize_ / 5.0;
                 for (auto &line : lines_) {
@@ -319,6 +331,8 @@ struct SVG
             write(ss);
             return ss.str();
         }
+
+        Text clone() const { return *this; }
 
         static std::string html_escape(const std::string &text)
         {
@@ -371,7 +385,22 @@ struct SVG
         }
     }
 
-    SVG clone() const {}
+    // disable shallow copy
+  private:
+    SVG(const SVG &) = default;
+    SVG &operator=(const SVG &) = default;
+    SVG(SVG &&) = delete;
+    SVG &operator=(SVG &&) = delete;
+    // implement deep copy
+  public:
+    std::unique_ptr<SVG> clone() const
+    {
+        std::unique_ptr<SVG> ptr(
+            new SVG(*this)); // std::make_unique<SVG>(*this);
+        // for (auto &pair: copy.elements_)
+        // elements_
+        return ptr;
+    }
 
     SETUP_FLUENT_API(SVG, double, width)
     SETUP_FLUENT_API(SVG, double, height)

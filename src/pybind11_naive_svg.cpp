@@ -53,6 +53,16 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                 SETUP_FLUENT_API_PYBIND(Color, float, a)
         .def("invalid", &Color::invalid)
         .def("to_string", &Color::to_string)
+
+        .def("__copy__",
+             [](const Color &self, py::dict) -> Color {
+                 // always deepcopy (maybe not good?)
+                 return self.clone();
+             })
+        .def(
+            "__deepcopy__",
+            [](const Color &self, py::dict) -> Color { return self.clone(); },
+            "memo"_a)
         .def_static("parse",
                     [](const std::string &text) {
                         int i = text.size() - 6;
@@ -64,6 +74,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                             std::stoi(text.substr(i + 2, 2), nullptr, 16),
                             std::stoi(text.substr(i + 4, 2), nullptr, 16));
                     })
+
         //
         ;
 
@@ -96,8 +107,19 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
         SETUP_FLUENT_API_PYBIND(Polyline, Color, stroke)
             SETUP_FLUENT_API_PYBIND(Polyline, double, stroke_width)
                 SETUP_FLUENT_API_PYBIND(Polyline, Color, fill)
+                    SETUP_FLUENT_API_PYBIND(Polyline, std::string, attrs)
         //
         .def("to_string", &Polyline::to_string)
+        .def("__copy__",
+             [](const Polyline &self, py::dict) -> Polyline {
+                 return self.clone();
+             })
+        .def(
+            "__deepcopy__",
+            [](const Polyline &self, py::dict) -> Polyline {
+                return self.clone();
+            },
+            "memo"_a)
         //
         ;
 
@@ -129,8 +151,19 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
         SETUP_FLUENT_API_PYBIND(Polygon, Color, stroke)
             SETUP_FLUENT_API_PYBIND(Polygon, double, stroke_width)
                 SETUP_FLUENT_API_PYBIND(Polygon, Color, fill)
+                    SETUP_FLUENT_API_PYBIND(Polygon, std::string, attrs)
         //
         .def("to_string", &Polygon::to_string)
+        .def("__copy__",
+             [](const Polygon &self, py::dict) -> Polygon {
+                 return self.clone();
+             })
+        .def(
+            "__deepcopy__",
+            [](const Polygon &self, py::dict) -> Polygon {
+                return self.clone();
+            },
+            "memo"_a)
         //
 
         ;
@@ -159,8 +192,16 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
         SETUP_FLUENT_API_PYBIND(Circle, Color, stroke)
             SETUP_FLUENT_API_PYBIND(Circle, double, stroke_width)
                 SETUP_FLUENT_API_PYBIND(Circle, Color, fill)
+                    SETUP_FLUENT_API_PYBIND(Circle, std::string, attrs)
         //
         .def("to_string", &Circle::to_string)
+        .def(
+            "__copy__",
+            [](const Circle &self, py::dict) -> Circle { return self.clone(); })
+        .def(
+            "__deepcopy__",
+            [](const Circle &self, py::dict) -> Circle { return self.clone(); },
+            "memo"_a)
         //
         ;
 
@@ -192,8 +233,17 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
         SETUP_FLUENT_API_PYBIND(Text, Color, stroke)
             SETUP_FLUENT_API_PYBIND(Text, double, stroke_width)
                 SETUP_FLUENT_API_PYBIND(Text, Color, fill)
+                    SETUP_FLUENT_API_PYBIND(Text, std::string, attrs)
         //
         .def("to_string", &Text::to_string)
+        .def("__copy__",
+             [](const Text &self, py::dict) -> Text { return self.clone(); })
+        .def(
+            "__deepcopy__",
+            [](const Text &self, py::dict) -> Text { return self.clone(); },
+            "memo"_a)
+        //
+        .def_static("html_escape", &Text::html_escape, "text"_a)
         //
         ;
 
