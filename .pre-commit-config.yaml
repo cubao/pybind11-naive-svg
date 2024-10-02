@@ -33,18 +33,14 @@ repos:
   - id: requirements-txt-fixer
   - id: trailing-whitespace
 
-# Black, the code formatter, natively supports pre-commit
-- repo: https://github.com/psf/black
-  rev: 23.1.0
-  hooks:
-  - id: black
-    exclude: ^(docs)
-
-- repo: https://github.com/charliermarsh/ruff-pre-commit
-  rev: "v0.0.254"
+# Check linting and style issues
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: "v0.6.5"
   hooks:
     - id: ruff
       args: ["--fix", "--show-fixes"]
+    - id: ruff-format
+      exclude: ^(docs)
 
 # Checking static types
 - repo: https://github.com/pre-commit/mirrors-mypy
