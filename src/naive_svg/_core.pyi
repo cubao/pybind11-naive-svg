@@ -1,26 +1,42 @@
 from __future__ import annotations
-
-import typing
-
 import numpy
+import typing
 
 __all__ = ["Circle", "Color", "Polygon", "Polyline", "SVG", "Text", "add"]
 
 class Circle:
-    def __copy__(self, arg0: dict) -> Circle: ...
-    def __deepcopy__(self, memo: dict) -> Circle: ...
+    def __copy__(self, arg0: dict) -> Circle:
+        """
+        Create a shallow copy of the Circle object
+        """
+    def __deepcopy__(self, memo: dict) -> Circle:
+        """
+        Create a deep copy of the Circle object
+        """
     def __init__(
         self, center: numpy.ndarray[numpy.float64[2, 1]], r: float = 1.0
-    ) -> None: ...
+    ) -> None:
+        """
+        Initialize Circle with center point and radius
+        """
     @typing.overload
     def attrs(self) -> str: ...
     @typing.overload
     def attrs(self, arg0: str) -> Circle: ...
     @typing.overload
-    def center(self) -> numpy.ndarray[numpy.float64[2, 1]]: ...
+    def center(self) -> numpy.ndarray[numpy.float64[2, 1]]:
+        """
+        Get the center of the Circle
+        """
     @typing.overload
-    def center(self, arg0: numpy.ndarray[numpy.float64[2, 1]]) -> Circle: ...
-    def clone(self) -> Circle: ...
+    def center(self, arg0: numpy.ndarray[numpy.float64[2, 1]]) -> Circle:
+        """
+        Set the center of the Circle
+        """
+    def clone(self) -> Circle:
+        """
+        Create a deep copy of the Circle object
+        """
     @typing.overload
     def fill(self) -> Color: ...
     @typing.overload
@@ -37,7 +53,10 @@ class Circle:
     def stroke_width(self) -> float: ...
     @typing.overload
     def stroke_width(self, arg0: float) -> Circle: ...
-    def to_string(self) -> str: ...
+    def to_string(self) -> str:
+        """
+        Convert Circle to SVG string representation
+        """
     @typing.overload
     def x(self) -> float: ...
     @typing.overload
@@ -49,14 +68,32 @@ class Circle:
 
 class Color:
     @staticmethod
-    def parse(arg0: str) -> Color: ...
-    def __copy__(self, arg0: dict) -> Color: ...
-    def __deepcopy__(self, memo: dict) -> Color: ...
+    def parse(arg0: str) -> Color:
+        """
+        Parse a color from a string representation
+        """
+    def __copy__(self, arg0: dict) -> Color:
+        """
+        Create a shallow copy of the Color object
+        """
+    def __deepcopy__(self, memo: dict) -> Color:
+        """
+        Create a deep copy of the Color object
+        """
     @typing.overload
-    def __init__(self, rgb: int = -1) -> None: ...
+    def __init__(self, rgb: int = -1) -> None:
+        """
+        Initialize Color with RGB value
+        """
     @typing.overload
-    def __init__(self, r: int, g: int, b: int, a: float = -1.0) -> None: ...
-    def __repr__(self) -> str: ...
+    def __init__(self, r: int, g: int, b: int, a: float = -1.0) -> None:
+        """
+        Initialize Color with R, G, B, and optional Alpha values
+        """
+    def __repr__(self) -> str:
+        """
+        Return a string representation of the Color object
+        """
     @typing.overload
     def a(self) -> float: ...
     @typing.overload
@@ -65,37 +102,61 @@ class Color:
     def b(self) -> int: ...
     @typing.overload
     def b(self, arg0: int) -> Color: ...
-    def clone(self) -> Color: ...
+    def clone(self) -> Color:
+        """
+        Create a deep copy of the Color object
+        """
     @typing.overload
     def g(self) -> int: ...
     @typing.overload
     def g(self, arg0: int) -> Color: ...
-    def invalid(self) -> bool: ...
+    def invalid(self) -> bool:
+        """
+        Check if the color is invalid
+        """
     @typing.overload
     def r(self) -> int: ...
     @typing.overload
     def r(self, arg0: int) -> Color: ...
-    def to_string(self) -> str: ...
+    def to_string(self) -> str:
+        """
+        Convert color to string representation
+        """
 
 class Polygon:
-    def __copy__(self, arg0: dict) -> Polygon: ...
-    def __deepcopy__(self, memo: dict) -> Polygon: ...
+    def __copy__(self, arg0: dict) -> Polygon:
+        """
+        Create a shallow copy of the Polygon object
+        """
+    def __deepcopy__(self, memo: dict) -> Polygon:
+        """
+        Create a deep copy of the Polygon object
+        """
     def __init__(
         self,
         points: numpy.ndarray[numpy.float64[m, 2], numpy.ndarray.flags.c_contiguous],
-    ) -> None: ...
+    ) -> None:
+        """
+        Initialize Polygon with a set of points
+        """
     @typing.overload
     def attrs(self) -> str: ...
     @typing.overload
     def attrs(self, arg0: str) -> Polygon: ...
-    def clone(self) -> Polygon: ...
+    def clone(self) -> Polygon:
+        """
+        Create a deep copy of the Polygon object
+        """
     @typing.overload
     def fill(self) -> Color: ...
     @typing.overload
     def fill(self, arg0: Color) -> Polygon: ...
     def from_numpy(
         self, arg0: numpy.ndarray[numpy.float64[m, 2], numpy.ndarray.flags.c_contiguous]
-    ) -> Polygon: ...
+    ) -> Polygon:
+        """
+        Set Polygon points from NumPy array
+        """
     @typing.overload
     def stroke(self) -> Color: ...
     @typing.overload
@@ -104,28 +165,49 @@ class Polygon:
     def stroke_width(self) -> float: ...
     @typing.overload
     def stroke_width(self, arg0: float) -> Polygon: ...
-    def to_numpy(self) -> numpy.ndarray[numpy.float64[m, 2]]: ...
-    def to_string(self) -> str: ...
+    def to_numpy(self) -> numpy.ndarray[numpy.float64[m, 2]]:
+        """
+        Convert Polygon points to NumPy array
+        """
+    def to_string(self) -> str:
+        """
+        Convert Polygon to SVG string representation
+        """
 
 class Polyline:
-    def __copy__(self, arg0: dict) -> Polyline: ...
-    def __deepcopy__(self, memo: dict) -> Polyline: ...
+    def __copy__(self, arg0: dict) -> Polyline:
+        """
+        Create a shallow copy of the Polyline object
+        """
+    def __deepcopy__(self, memo: dict) -> Polyline:
+        """
+        Create a deep copy of the Polyline object
+        """
     def __init__(
         self,
         points: numpy.ndarray[numpy.float64[m, 2], numpy.ndarray.flags.c_contiguous],
-    ) -> None: ...
+    ) -> None:
+        """
+        Initialize Polyline with a set of points
+        """
     @typing.overload
     def attrs(self) -> str: ...
     @typing.overload
     def attrs(self, arg0: str) -> Polyline: ...
-    def clone(self) -> Polyline: ...
+    def clone(self) -> Polyline:
+        """
+        Create a deep copy of the Polyline object
+        """
     @typing.overload
     def fill(self) -> Color: ...
     @typing.overload
     def fill(self, arg0: Color) -> Polyline: ...
     def from_numpy(
         self, arg0: numpy.ndarray[numpy.float64[m, 2], numpy.ndarray.flags.c_contiguous]
-    ) -> Polyline: ...
+    ) -> Polyline:
+        """
+        Set Polyline points from NumPy array
+        """
     @typing.overload
     def stroke(self) -> Color: ...
     @typing.overload
@@ -134,43 +216,94 @@ class Polyline:
     def stroke_width(self) -> float: ...
     @typing.overload
     def stroke_width(self, arg0: float) -> Polyline: ...
-    def to_numpy(self) -> numpy.ndarray[numpy.float64[m, 2]]: ...
-    def to_string(self) -> str: ...
+    def to_numpy(self) -> numpy.ndarray[numpy.float64[m, 2]]:
+        """
+        Convert Polyline points to NumPy array
+        """
+    def to_string(self) -> str:
+        """
+        Convert Polyline to SVG string representation
+        """
 
 class SVG:
-    def __copy__(self, arg0: dict) -> SVG: ...
-    def __deepcopy__(self, memo: dict) -> SVG: ...
-    def __init__(self, width: float, height: float) -> None: ...
+    def __copy__(self, arg0: dict) -> SVG:
+        """
+        Create a shallow copy of the SVG object
+        """
+    def __deepcopy__(self, memo: dict) -> SVG:
+        """
+        Create a deep copy of the SVG object
+        """
+    def __init__(self, width: float, height: float) -> None:
+        """
+        Initialize SVG with width and height
+        """
     @typing.overload
-    def add(self, polyline: Polyline) -> Polyline: ...
+    def add(self, polyline: Polyline) -> Polyline:
+        """
+        Add a Polyline to the SVG
+        """
     @typing.overload
-    def add(self, polygon: Polygon) -> Polygon: ...
+    def add(self, polygon: Polygon) -> Polygon:
+        """
+        Add a Polygon to the SVG
+        """
     @typing.overload
-    def add(self, circle: Circle) -> Circle: ...
+    def add(self, circle: Circle) -> Circle:
+        """
+        Add a Circle to the SVG
+        """
     @typing.overload
-    def add(self, text: Text) -> Text: ...
+    def add(self, text: Text) -> Text:
+        """
+        Add a Text to the SVG
+        """
     def add_circle(
         self, center: numpy.ndarray[numpy.float64[2, 1]], *, r: float = 1.0
-    ) -> Circle: ...
+    ) -> Circle:
+        """
+        Add a Circle to the SVG
+        """
     def add_polygon(
         self,
         points: numpy.ndarray[numpy.float64[m, 2], numpy.ndarray.flags.c_contiguous],
-    ) -> Polygon: ...
+    ) -> Polygon:
+        """
+        Add a Polygon to the SVG using NumPy array of points
+        """
     def add_polyline(
         self,
         points: numpy.ndarray[numpy.float64[m, 2], numpy.ndarray.flags.c_contiguous],
-    ) -> Polyline: ...
+    ) -> Polyline:
+        """
+        Add a Polyline to the SVG using NumPy array of points
+        """
     def add_text(
         self,
         position: numpy.ndarray[numpy.float64[2, 1]],
         *,
         text: str,
         fontsize: float = 10.0,
-    ) -> Text: ...
-    def as_circle(self, index: int) -> Circle: ...
-    def as_polygon(self, index: int) -> Polygon: ...
-    def as_polyline(self, index: int) -> Polyline: ...
-    def as_text(self, index: int) -> Text: ...
+    ) -> Text:
+        """
+        Add a Text to the SVG
+        """
+    def as_circle(self, index: int) -> Circle:
+        """
+        Get the element at the given index as a Circle
+        """
+    def as_polygon(self, index: int) -> Polygon:
+        """
+        Get the element at the given index as a Polygon
+        """
+    def as_polyline(self, index: int) -> Polyline:
+        """
+        Get the element at the given index as a Polyline
+        """
+    def as_text(self, index: int) -> Text:
+        """
+        Get the element at the given index as a Text
+        """
     @typing.overload
     def attrs(self) -> str: ...
     @typing.overload
@@ -179,9 +312,18 @@ class SVG:
     def background(self) -> Color: ...
     @typing.overload
     def background(self, arg0: Color) -> SVG: ...
-    def clone(self) -> SVG: ...
-    def dump(self, path: str) -> None: ...
-    def empty(self) -> bool: ...
+    def clone(self) -> SVG:
+        """
+        Create a deep copy of the SVG object
+        """
+    def dump(self, path: str) -> None:
+        """
+        Save the SVG to a file
+        """
+    def empty(self) -> bool:
+        """
+        Check if the SVG is empty
+        """
     @typing.overload
     def grid_color(self) -> Color: ...
     @typing.overload
@@ -202,13 +344,34 @@ class SVG:
     def height(self) -> float: ...
     @typing.overload
     def height(self, arg0: float) -> SVG: ...
-    def is_circle(self, arg0: int) -> bool: ...
-    def is_polygon(self, arg0: int) -> bool: ...
-    def is_polyline(self, arg0: int) -> bool: ...
-    def is_text(self, arg0: int) -> bool: ...
-    def num_elements(self) -> int: ...
-    def pop(self) -> None: ...
-    def to_string(self) -> str: ...
+    def is_circle(self, arg0: int) -> bool:
+        """
+        Check if the element at the given index is a Circle
+        """
+    def is_polygon(self, arg0: int) -> bool:
+        """
+        Check if the element at the given index is a Polygon
+        """
+    def is_polyline(self, arg0: int) -> bool:
+        """
+        Check if the element at the given index is a Polyline
+        """
+    def is_text(self, arg0: int) -> bool:
+        """
+        Check if the element at the given index is a Text
+        """
+    def num_elements(self) -> int:
+        """
+        Get the number of elements in the SVG
+        """
+    def pop(self) -> None:
+        """
+        Remove the last added element from the SVG
+        """
+    def to_string(self) -> str:
+        """
+        Convert the SVG to a string representation
+        """
     @typing.overload
     def view_box(self) -> list[float]: ...
     @typing.overload
@@ -220,20 +383,35 @@ class SVG:
 
 class Text:
     @staticmethod
-    def html_escape(text: str) -> str: ...
-    def __copy__(self, arg0: dict) -> Text: ...
-    def __deepcopy__(self, memo: dict) -> Text: ...
+    def html_escape(text: str) -> str:
+        """
+        Escape special characters in the text for HTML
+        """
+    def __copy__(self, arg0: dict) -> Text:
+        """
+        Create a shallow copy of the Text object
+        """
+    def __deepcopy__(self, memo: dict) -> Text:
+        """
+        Create a deep copy of the Text object
+        """
     def __init__(
         self,
         position: numpy.ndarray[numpy.float64[2, 1]],
         text: str,
         fontsize: float = 10.0,
-    ) -> None: ...
+    ) -> None:
+        """
+        Initialize Text with position, content, and font size
+        """
     @typing.overload
     def attrs(self) -> str: ...
     @typing.overload
     def attrs(self, arg0: str) -> Text: ...
-    def clone(self) -> Text: ...
+    def clone(self) -> Text:
+        """
+        Create a deep copy of the Text object
+        """
     @typing.overload
     def fill(self) -> Color: ...
     @typing.overload
@@ -247,9 +425,15 @@ class Text:
     @typing.overload
     def lines(self, arg0: list[str]) -> Text: ...
     @typing.overload
-    def position(self) -> numpy.ndarray[numpy.float64[2, 1]]: ...
+    def position(self) -> numpy.ndarray[numpy.float64[2, 1]]:
+        """
+        Get the position of the Text
+        """
     @typing.overload
-    def position(self, arg0: numpy.ndarray[numpy.float64[2, 1]]) -> Text: ...
+    def position(self, arg0: numpy.ndarray[numpy.float64[2, 1]]) -> Text:
+        """
+        Set the position of the Text
+        """
     @typing.overload
     def stroke(self) -> Color: ...
     @typing.overload
@@ -262,7 +446,10 @@ class Text:
     def text(self) -> str: ...
     @typing.overload
     def text(self, arg0: str) -> Text: ...
-    def to_string(self) -> str: ...
+    def to_string(self) -> str:
+        """
+        Convert Text to SVG string representation
+        """
 
 def add(arg0: int, arg1: int) -> int:
     """

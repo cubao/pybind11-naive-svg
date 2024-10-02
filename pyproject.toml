@@ -55,6 +55,7 @@ build-verbosity = 1
 src = ["src"]
 
 [tool.ruff.lint]
+exclude = ["*.pyi"]
 extend-select = [
   "B",           # flake8-bugbear
   "I",           # isort

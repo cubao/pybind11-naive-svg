@@ -387,3 +387,4 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
         //
         ;
 }
+} // namespace cubao
