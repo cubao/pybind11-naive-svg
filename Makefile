@@ -17,11 +17,6 @@ lint_install:
 	pre-commit install
 .PHONY: lint lint_install
 
-build:
-	mkdir -p build && cd build && \
-	cmake .. && make
-.PHONY: build
-
 docs_build:
 	python3 -m pip install -r docs/requirements.txt
 	mkdocs build
@@ -64,6 +59,10 @@ pytest:
 	python3 -m pip install pytest
 	pytest tests/test_basic.py
 .PHONY: build
+
+restub:
+	pybind11-stubgen naive_svg._core -o stubs
+	cp stubs/naive_svg/_core.pyi src/naive_svg
 
 # conda create -y -n py38 python=3.8
 # conda create -y -n py39 python=3.9
