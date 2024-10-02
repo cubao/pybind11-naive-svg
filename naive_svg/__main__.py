@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from naive_svg import *  # noqa: F403
 
 # TODO, same sample code

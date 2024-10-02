@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from naive_svg import SVG, Circle, Color, Polygon, Polyline, Text, add
 
 

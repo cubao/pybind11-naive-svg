@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import colorsys
 import os
 import random
@@ -50,7 +52,6 @@ def geojson2svg(
             svg.add_polygon(enus[:, :2]).stroke(Color(r, g, b)).fill(
                 Color(r, g, b, 0.2)
             ).stroke_width(0.2)
-            pass
         if with_label:
             fid = str(props["id"]()) if "id" in props else f"f#{idx}"
             svg.add_text(enus[0, :2], text=fid, fontsize=1.0).lines(
