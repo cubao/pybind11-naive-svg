@@ -12,7 +12,7 @@ namespace cubao
 void bind_naive_svg(py::module &m);
 }
 
-PYBIND11_MODULE(_naive_svg, m)
+PYBIND11_MODULE(_core, m)
 {
     m.def("add", &add, R"pbdoc(
         Add two numbers
