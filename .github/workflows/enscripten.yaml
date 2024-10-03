@@ -29,6 +29,6 @@ jobs:
         CIBW_PLATFORM: pyodide
         CIBW_TEST_SKIP: "*"
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v3
       with:
         path: wheelhouse/*.whl
