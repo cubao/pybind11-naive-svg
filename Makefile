@@ -100,6 +100,13 @@ tar.gz:
 	tar -cvz --exclude .git -f ../$(PROJECT_NAME).tar.gz .
 	ls -alh ../$(PROJECT_NAME).tar.gz
 
+
+SYNC_OUTPUT_DIR ?= headers/include/cubao
+sync_headers:
+	mkdir -p $(SYNC_OUTPUT_DIR)
+	cp src/naive_svg.hpp $(SYNC_OUTPUT_DIR)
+	cp src/pybind11_naive_svg.cpp $(SYNC_OUTPUT_DIR)/pybind11_naive_svg.hpp
+
 # https://stackoverflow.com/a/25817631
 echo-%  : ; @echo -n $($*)
 Echo-%  : ; @echo $($*)
