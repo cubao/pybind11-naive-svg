@@ -63,6 +63,27 @@ jobs:
       with:
         path: wheelhouse/*.whl
 
+  build-wasm-emscripten:
+    name: Pyodide
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+        fetch-depth: 0
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - uses: pypa/cibuildwheel@v2.21
+      env:
+        CIBW_PLATFORM: pyodide
+        CIBW_TEST_SKIP: "*"
+
+    - uses: actions/upload-artifact@v4
+      with:
+        path: wheelhouse/*.whl
 
   upload_all:
     name: Upload if release
