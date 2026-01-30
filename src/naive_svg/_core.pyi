@@ -800,4 +800,4 @@ def add(arg0: typing.SupportsInt, arg1: typing.SupportsInt) -> int:
     Some other explanation about the add function.
     """
 
-__version__: str = "0.0.5"
+__version__: str = "0.1.0"
