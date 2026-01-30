@@ -11,6 +11,10 @@ readme = "README.md"
 authors = [
   { name = "district10", email = "dvorak4tzx@gmail.com" },
 ]
+dependencies = [
+  "numpy",
+  "pybind11_geobuf",
+]
 requires-python = ">=3.7"
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -28,7 +32,7 @@ classifiers = [
 Homepage = "https://github.com/cubao/pybind11-naive-svg"
 
 [project.optional-dependencies]
-test = ["pytest", "pybind11_geobuf"]
+test = ["pytest"]
 
 
 [tool.scikit-build]
