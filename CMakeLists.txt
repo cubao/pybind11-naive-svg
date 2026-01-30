@@ -36,11 +36,15 @@ endif()
 # https://scikit-build-core.readthedocs.io/en/latest/getting_started.html
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 find_package(pybind11 CONFIG REQUIRED)
-include_directories(headers/include)
+execute_process(
+  COMMAND "${Python_EXECUTABLE}" -c
+          "import cubao_headers; print(cubao_headers.get_include())"
+  OUTPUT_VARIABLE CUBAO_HEADERS_INCLUDE_DIR
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 file(GLOB SRCS src/*.cpp)
 python_add_library(_core MODULE ${SRCS} WITH_SOABI)
 target_link_libraries(_core PRIVATE pybind11::headers)
-target_include_directories(_core PRIVATE src)
+target_include_directories(_core PRIVATE src "${CUBAO_HEADERS_INCLUDE_DIR}")
 target_compile_definitions(_core PRIVATE VERSION_INFO=${PROJECT_VERSION})
 install(TARGETS _core DESTINATION ${PROJECT_NAME})

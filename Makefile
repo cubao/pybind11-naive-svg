@@ -63,6 +63,7 @@ pytest:
 restub:
 	pybind11-stubgen naive_svg._core -o stubs
 	cp stubs/naive_svg/_core.pyi src/naive_svg
+	pre-commit run --files src/naive_svg/_core.pyi
 
 # conda create -y -n py38 python=3.8
 # conda create -y -n py39 python=3.9
