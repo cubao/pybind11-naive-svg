@@ -2,7 +2,7 @@ from __future__ import annotations
 import numpy
 import typing
 
-__all__ = ["Circle", "Color", "Polygon", "Polyline", "SVG", "Text", "add"]
+__all__ = ["Circle", "Color", "Path", "Polygon", "Polyline", "Rect", "SVG", "Text", "add"]
 
 class Circle:
     def __copy__(self, arg0: dict) -> Circle:
@@ -38,6 +38,10 @@ class Circle:
         Create a deep copy of the Circle object
         """
     @typing.overload
+    def dash_array(self) -> str: ...
+    @typing.overload
+    def dash_array(self, arg0: str) -> Circle: ...
+    @typing.overload
     def fill(self) -> Color: ...
     @typing.overload
     def fill(self, arg0: Color) -> Circle: ...
@@ -50,6 +54,14 @@ class Circle:
     @typing.overload
     def stroke(self, arg0: Color) -> Circle: ...
     @typing.overload
+    def stroke_linecap(self) -> str: ...
+    @typing.overload
+    def stroke_linecap(self, arg0: str) -> Circle: ...
+    @typing.overload
+    def stroke_linejoin(self) -> str: ...
+    @typing.overload
+    def stroke_linejoin(self, arg0: str) -> Circle: ...
+    @typing.overload
     def stroke_width(self) -> float: ...
     @typing.overload
     def stroke_width(self, arg0: float) -> Circle: ...
@@ -57,6 +69,10 @@ class Circle:
         """
         Convert Circle to SVG string representation
         """
+    @typing.overload
+    def transform(self) -> str: ...
+    @typing.overload
+    def transform(self, arg0: str) -> Circle: ...
     @typing.overload
     def x(self) -> float: ...
     @typing.overload
@@ -148,6 +164,10 @@ class Polygon:
         Create a deep copy of the Polygon object
         """
     @typing.overload
+    def dash_array(self) -> str: ...
+    @typing.overload
+    def dash_array(self, arg0: str) -> Polygon: ...
+    @typing.overload
     def fill(self) -> Color: ...
     @typing.overload
     def fill(self, arg0: Color) -> Polygon: ...
@@ -162,6 +182,14 @@ class Polygon:
     @typing.overload
     def stroke(self, arg0: Color) -> Polygon: ...
     @typing.overload
+    def stroke_linecap(self) -> str: ...
+    @typing.overload
+    def stroke_linecap(self, arg0: str) -> Polygon: ...
+    @typing.overload
+    def stroke_linejoin(self) -> str: ...
+    @typing.overload
+    def stroke_linejoin(self, arg0: str) -> Polygon: ...
+    @typing.overload
     def stroke_width(self) -> float: ...
     @typing.overload
     def stroke_width(self, arg0: float) -> Polygon: ...
@@ -173,6 +201,10 @@ class Polygon:
         """
         Convert Polygon to SVG string representation
         """
+    @typing.overload
+    def transform(self) -> str: ...
+    @typing.overload
+    def transform(self, arg0: str) -> Polygon: ...
 
 class Polyline:
     def __copy__(self, arg0: dict) -> Polyline:
@@ -199,6 +231,10 @@ class Polyline:
         Create a deep copy of the Polyline object
         """
     @typing.overload
+    def dash_array(self) -> str: ...
+    @typing.overload
+    def dash_array(self, arg0: str) -> Polyline: ...
+    @typing.overload
     def fill(self) -> Color: ...
     @typing.overload
     def fill(self, arg0: Color) -> Polyline: ...
@@ -213,6 +249,14 @@ class Polyline:
     @typing.overload
     def stroke(self, arg0: Color) -> Polyline: ...
     @typing.overload
+    def stroke_linecap(self) -> str: ...
+    @typing.overload
+    def stroke_linecap(self, arg0: str) -> Polyline: ...
+    @typing.overload
+    def stroke_linejoin(self) -> str: ...
+    @typing.overload
+    def stroke_linejoin(self, arg0: str) -> Polyline: ...
+    @typing.overload
     def stroke_width(self) -> float: ...
     @typing.overload
     def stroke_width(self, arg0: float) -> Polyline: ...
@@ -224,6 +268,183 @@ class Polyline:
         """
         Convert Polyline to SVG string representation
         """
+    @typing.overload
+    def transform(self) -> str: ...
+    @typing.overload
+    def transform(self, arg0: str) -> Polyline: ...
+
+class Path:
+    def __copy__(self, arg0: dict) -> Path:
+        """
+        Create a shallow copy of the Path object
+        """
+    def __deepcopy__(self, memo: dict) -> Path:
+        """
+        Create a deep copy of the Path object
+        """
+    def __init__(self, d: str = "") -> None:
+        """
+        Initialize Path with path data string
+        """
+    def arc(
+        self,
+        rx: float,
+        ry: float,
+        x_axis_rotation: float,
+        large_arc_flag: int,
+        sweep_flag: int,
+        x: float,
+        y: float,
+    ) -> Path:
+        """
+        Add A (arc) command
+        """
+    @typing.overload
+    def attrs(self) -> str: ...
+    @typing.overload
+    def attrs(self, arg0: str) -> Path: ...
+    def clone(self) -> Path:
+        """
+        Create a deep copy of the Path object
+        """
+    def close(self) -> Path:
+        """
+        Add Z (close path) command
+        """
+    def cubic(
+        self, c1x: float, c1y: float, c2x: float, c2y: float, x: float, y: float
+    ) -> Path:
+        """
+        Add C (cubic bezier) command
+        """
+    @typing.overload
+    def d(self) -> str: ...
+    @typing.overload
+    def d(self, arg0: str) -> Path: ...
+    @typing.overload
+    def dash_array(self) -> str: ...
+    @typing.overload
+    def dash_array(self, arg0: str) -> Path: ...
+    @typing.overload
+    def fill(self) -> Color: ...
+    @typing.overload
+    def fill(self, arg0: Color) -> Path: ...
+    def line_to(self, x: float, y: float) -> Path:
+        """
+        Add L (line to) command
+        """
+    def move_to(self, x: float, y: float) -> Path:
+        """
+        Add M (move to) command
+        """
+    def quadratic(self, cx: float, cy: float, x: float, y: float) -> Path:
+        """
+        Add Q (quadratic bezier) command
+        """
+    @typing.overload
+    def stroke(self) -> Color: ...
+    @typing.overload
+    def stroke(self, arg0: Color) -> Path: ...
+    @typing.overload
+    def stroke_linecap(self) -> str: ...
+    @typing.overload
+    def stroke_linecap(self, arg0: str) -> Path: ...
+    @typing.overload
+    def stroke_linejoin(self) -> str: ...
+    @typing.overload
+    def stroke_linejoin(self, arg0: str) -> Path: ...
+    @typing.overload
+    def stroke_width(self) -> float: ...
+    @typing.overload
+    def stroke_width(self, arg0: float) -> Path: ...
+    def to_string(self) -> str:
+        """
+        Convert Path to SVG string representation
+        """
+    @typing.overload
+    def transform(self) -> str: ...
+    @typing.overload
+    def transform(self, arg0: str) -> Path: ...
+
+class Rect:
+    def __copy__(self, arg0: dict) -> Rect:
+        """
+        Create a shallow copy of the Rect object
+        """
+    def __deepcopy__(self, memo: dict) -> Rect:
+        """
+        Create a deep copy of the Rect object
+        """
+    def __init__(
+        self, x: float = 0, y: float = 0, width: float = 0, height: float = 0
+    ) -> None:
+        """
+        Initialize Rect with x, y, width, height
+        """
+    @typing.overload
+    def attrs(self) -> str: ...
+    @typing.overload
+    def attrs(self, arg0: str) -> Rect: ...
+    def clone(self) -> Rect:
+        """
+        Create a deep copy of the Rect object
+        """
+    @typing.overload
+    def dash_array(self) -> str: ...
+    @typing.overload
+    def dash_array(self, arg0: str) -> Rect: ...
+    @typing.overload
+    def fill(self) -> Color: ...
+    @typing.overload
+    def fill(self, arg0: Color) -> Rect: ...
+    @typing.overload
+    def height(self) -> float: ...
+    @typing.overload
+    def height(self, arg0: float) -> Rect: ...
+    @typing.overload
+    def rx(self) -> float: ...
+    @typing.overload
+    def rx(self, arg0: float) -> Rect: ...
+    @typing.overload
+    def ry(self) -> float: ...
+    @typing.overload
+    def ry(self, arg0: float) -> Rect: ...
+    @typing.overload
+    def stroke(self) -> Color: ...
+    @typing.overload
+    def stroke(self, arg0: Color) -> Rect: ...
+    @typing.overload
+    def stroke_linecap(self) -> str: ...
+    @typing.overload
+    def stroke_linecap(self, arg0: str) -> Rect: ...
+    @typing.overload
+    def stroke_linejoin(self) -> str: ...
+    @typing.overload
+    def stroke_linejoin(self, arg0: str) -> Rect: ...
+    @typing.overload
+    def stroke_width(self) -> float: ...
+    @typing.overload
+    def stroke_width(self, arg0: float) -> Rect: ...
+    def to_string(self) -> str:
+        """
+        Convert Rect to SVG string representation
+        """
+    @typing.overload
+    def transform(self) -> str: ...
+    @typing.overload
+    def transform(self, arg0: str) -> Rect: ...
+    @typing.overload
+    def width(self) -> float: ...
+    @typing.overload
+    def width(self, arg0: float) -> Rect: ...
+    @typing.overload
+    def x(self) -> float: ...
+    @typing.overload
+    def x(self, arg0: float) -> Rect: ...
+    @typing.overload
+    def y(self) -> float: ...
+    @typing.overload
+    def y(self, arg0: float) -> Rect: ...
 
 class SVG:
     def __copy__(self, arg0: dict) -> SVG:
@@ -258,6 +479,16 @@ class SVG:
         """
         Add a Text to the SVG
         """
+    @typing.overload
+    def add(self, path: Path) -> Path:
+        """
+        Add a Path to the SVG
+        """
+    @typing.overload
+    def add(self, rect: Rect) -> Rect:
+        """
+        Add a Rect to the SVG
+        """
     def add_circle(
         self, center: numpy.ndarray[numpy.float64[2, 1]], *, r: float = 1.0
     ) -> Circle:
@@ -288,6 +519,14 @@ class SVG:
         """
         Add a Text to the SVG
         """
+    def add_path(self, d: str = "") -> Path:
+        """
+        Add a Path to the SVG
+        """
+    def add_rect(self, x: float, y: float, width: float, height: float) -> Rect:
+        """
+        Add a Rect to the SVG
+        """
     def as_circle(self, index: int) -> Circle:
         """
         Get the element at the given index as a Circle
@@ -303,6 +542,14 @@ class SVG:
     def as_text(self, index: int) -> Text:
         """
         Get the element at the given index as a Text
+        """
+    def as_path(self, index: int) -> Path:
+        """
+        Get the element at the given index as a Path
+        """
+    def as_rect(self, index: int) -> Rect:
+        """
+        Get the element at the given index as a Rect
         """
     @typing.overload
     def attrs(self) -> str: ...
@@ -360,6 +607,14 @@ class SVG:
         """
         Check if the element at the given index is a Text
         """
+    def is_path(self, arg0: int) -> bool:
+        """
+        Check if the element at the given index is a Path
+        """
+    def is_rect(self, arg0: int) -> bool:
+        """
+        Check if the element at the given index is a Rect
+        """
     def num_elements(self) -> int:
         """
         Get the number of elements in the SVG
@@ -413,6 +668,10 @@ class Text:
         Create a deep copy of the Text object
         """
     @typing.overload
+    def dash_array(self) -> str: ...
+    @typing.overload
+    def dash_array(self, arg0: str) -> Text: ...
+    @typing.overload
     def fill(self) -> Color: ...
     @typing.overload
     def fill(self, arg0: Color) -> Text: ...
@@ -439,6 +698,14 @@ class Text:
     @typing.overload
     def stroke(self, arg0: Color) -> Text: ...
     @typing.overload
+    def stroke_linecap(self) -> str: ...
+    @typing.overload
+    def stroke_linecap(self, arg0: str) -> Text: ...
+    @typing.overload
+    def stroke_linejoin(self) -> str: ...
+    @typing.overload
+    def stroke_linejoin(self, arg0: str) -> Text: ...
+    @typing.overload
     def stroke_width(self) -> float: ...
     @typing.overload
     def stroke_width(self, arg0: float) -> Text: ...
@@ -450,6 +717,10 @@ class Text:
         """
         Convert Text to SVG string representation
         """
+    @typing.overload
+    def transform(self) -> str: ...
+    @typing.overload
+    def transform(self, arg0: str) -> Text: ...
 
 def add(arg0: int, arg1: int) -> int:
     """

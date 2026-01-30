@@ -35,6 +35,10 @@ namespace cubao
     SETUP_FLUENT_API(KlassType, Color, stroke)                                 \
     SETUP_FLUENT_API(KlassType, double, stroke_width)                          \
     SETUP_FLUENT_API(KlassType, Color, fill)                                   \
+    SETUP_FLUENT_API(KlassType, std::string, dash_array)                       \
+    SETUP_FLUENT_API(KlassType, std::string, stroke_linecap)                   \
+    SETUP_FLUENT_API(KlassType, std::string, stroke_linejoin)                  \
+    SETUP_FLUENT_API(KlassType, std::string, transform)                        \
     SETUP_FLUENT_API(KlassType, std::string, attrs)
 #endif
 
@@ -108,7 +112,9 @@ struct SVG
         POLYLINE,
         POLYGON,
         CIRCLE,
-        TEXT
+        TEXT,
+        PATH,
+        RECT
     };
 
     struct Element
@@ -118,7 +124,32 @@ struct SVG
         Color stroke_{COLOR::BLACK};
         double stroke_width_{1.0};
         Color fill_{COLOR::NONE};
+        std::string dash_array_;
+        std::string stroke_linecap_;
+        std::string stroke_linejoin_;
+        std::string transform_;
         std::string attrs_;
+
+        // Helper to write common style attributes
+        void write_style(std::ostream &out) const
+        {
+            out << " style='stroke:" << stroke_      //
+                << ";stroke-width:" << stroke_width_ //
+                << ";fill:" << fill_;
+            if (!dash_array_.empty()) {
+                out << ";stroke-dasharray:" << dash_array_;
+            }
+            if (!stroke_linecap_.empty()) {
+                out << ";stroke-linecap:" << stroke_linecap_;
+            }
+            if (!stroke_linejoin_.empty()) {
+                out << ";stroke-linejoin:" << stroke_linejoin_;
+            }
+            out << "'";
+            if (!transform_.empty()) {
+                out << " transform='" << transform_ << "'";
+            }
+        }
     };
 
     struct Polyline : Element
@@ -132,10 +163,7 @@ struct SVG
         void write(std::ostream &out) const
         {
             out << "<polyline";
-            out << " style='stroke:" << stroke_      //
-                << ";stroke-width:" << stroke_width_ //
-                << ";fill:" << fill_                 //
-                << "'";
+            write_style(out);
             out << " points='";
             for (auto &pt : points_) {
                 out << pt[0] << "," << pt[1] << " ";
@@ -166,10 +194,7 @@ struct SVG
         void write(std::ostream &out) const
         {
             out << "<polygon";
-            out << " style='stroke:" << stroke_      //
-                << ";stroke-width:" << stroke_width_ //
-                << ";fill:" << fill_                 //
-                << "'";
+            write_style(out);
             out << " points='";
             for (auto &pt : points_) {
                 out << pt[0] << "," << pt[1] << " ";
@@ -227,10 +252,8 @@ struct SVG
         void write(std::ostream &out) const
         {
             out << "<circle r='" << r_ << "'"               //
-                << " cx='" << x() << "' cy='" << y() << "'" //
-                << " style='stroke:" << stroke_             //
-                << ";stroke-width:" << stroke_width_        //
-                << ";fill:" << fill_ << "'";
+                << " cx='" << x() << "' cy='" << y() << "'";
+            write_style(out);
             if (!attrs_.empty()) {
                 out << " " << attrs_;
             }
@@ -356,6 +379,133 @@ struct SVG
         double fontsize_{10.0};
     };
 
+    struct Path : Element
+    {
+        Path(const std::string &d = "") : d_(d) {}
+        SETUP_FLUENT_API(Path, std::string, d)
+        SETUP_FLUENT_API_FOR_SVG_ELEMENT(Path)
+
+        // Convenience methods for building path data
+        Path &move_to(double x, double y)
+        {
+            if (!d_.empty())
+                d_ += " ";
+            d_ += "M " + std::to_string(x) + " " + std::to_string(y);
+            return *this;
+        }
+        Path &line_to(double x, double y)
+        {
+            if (!d_.empty())
+                d_ += " ";
+            d_ += "L " + std::to_string(x) + " " + std::to_string(y);
+            return *this;
+        }
+        Path &close()
+        {
+            if (!d_.empty())
+                d_ += " ";
+            d_ += "Z";
+            return *this;
+        }
+        Path &quadratic(double cx, double cy, double x, double y)
+        {
+            if (!d_.empty())
+                d_ += " ";
+            d_ += "Q " + std::to_string(cx) + " " + std::to_string(cy) + " " +
+                  std::to_string(x) + " " + std::to_string(y);
+            return *this;
+        }
+        Path &cubic(double c1x, double c1y, double c2x, double c2y, double x,
+                    double y)
+        {
+            if (!d_.empty())
+                d_ += " ";
+            d_ += "C " + std::to_string(c1x) + " " + std::to_string(c1y) + " " +
+                  std::to_string(c2x) + " " + std::to_string(c2y) + " " +
+                  std::to_string(x) + " " + std::to_string(y);
+            return *this;
+        }
+        Path &arc(double rx, double ry, double x_axis_rotation,
+                  int large_arc_flag, int sweep_flag, double x, double y)
+        {
+            if (!d_.empty())
+                d_ += " ";
+            d_ += "A " + std::to_string(rx) + " " + std::to_string(ry) + " " +
+                  std::to_string(x_axis_rotation) + " " +
+                  std::to_string(large_arc_flag) + " " +
+                  std::to_string(sweep_flag) + " " + std::to_string(x) + " " +
+                  std::to_string(y);
+            return *this;
+        }
+
+        friend std::ostream &operator<<(std::ostream &out, const SVG::Path &e);
+        void write(std::ostream &out) const
+        {
+            out << "<path d='" << d_ << "'";
+            write_style(out);
+            if (!attrs_.empty()) {
+                out << " " << attrs_;
+            }
+            out << " />";
+        }
+        std::string to_string() const
+        {
+            std::stringstream ss;
+            write(ss);
+            return ss.str();
+        }
+
+        Path clone() const { return *this; }
+
+      protected:
+        std::string d_;
+    };
+
+    struct Rect : Element
+    {
+        Rect(double x = 0, double y = 0, double width = 0, double height = 0)
+            : x_(x), y_(y), width_(width), height_(height)
+        {
+        }
+        SETUP_FLUENT_API(Rect, double, x)
+        SETUP_FLUENT_API(Rect, double, y)
+        SETUP_FLUENT_API(Rect, double, width)
+        SETUP_FLUENT_API(Rect, double, height)
+        SETUP_FLUENT_API(Rect, double, rx)
+        SETUP_FLUENT_API(Rect, double, ry)
+        SETUP_FLUENT_API_FOR_SVG_ELEMENT(Rect)
+
+        friend std::ostream &operator<<(std::ostream &out, const SVG::Rect &e);
+        void write(std::ostream &out) const
+        {
+            out << "<rect x='" << x_ << "' y='" << y_ << "'"
+                << " width='" << width_ << "' height='" << height_ << "'";
+            if (rx_ > 0) {
+                out << " rx='" << rx_ << "'";
+            }
+            if (ry_ > 0) {
+                out << " ry='" << ry_ << "'";
+            }
+            write_style(out);
+            if (!attrs_.empty()) {
+                out << " " << attrs_;
+            }
+            out << " />";
+        }
+        std::string to_string() const
+        {
+            std::stringstream ss;
+            write(ss);
+            return ss.str();
+        }
+
+        Rect clone() const { return *this; }
+
+      protected:
+        double x_{0}, y_{0}, width_{0}, height_{0};
+        double rx_{0}, ry_{0};
+    };
+
     SVG(double width, double height) : width_(width), height_(height) {}
     ~SVG()
     {
@@ -369,6 +519,10 @@ struct SVG
                 delete (Circle *)pair.second;
             } else if (type == ELEMENT::TEXT) {
                 delete (Text *)pair.second;
+            } else if (type == ELEMENT::PATH) {
+                delete (Path *)pair.second;
+            } else if (type == ELEMENT::RECT) {
+                delete (Rect *)pair.second;
             }
         }
     }
@@ -395,6 +549,10 @@ struct SVG
                 ptr->add(*(Circle *)pair.second);
             } else if (type == ELEMENT::TEXT) {
                 ptr->add(*(Text *)pair.second);
+            } else if (type == ELEMENT::PATH) {
+                ptr->add(*(Path *)pair.second);
+            } else if (type == ELEMENT::RECT) {
+                ptr->add(*(Rect *)pair.second);
             }
         }
         return ptr;
@@ -438,6 +596,20 @@ struct SVG
         elements_.push_back({ELEMENT::TEXT, (void *)ptr});
         return *ptr;
     }
+    Path &add(const Path &path)
+    {
+        auto ptr = new Path();
+        *ptr = path;
+        elements_.push_back({ELEMENT::PATH, (void *)ptr});
+        return *ptr;
+    }
+    Rect &add(const Rect &rect)
+    {
+        auto ptr = new Rect();
+        *ptr = rect;
+        elements_.push_back({ELEMENT::RECT, (void *)ptr});
+        return *ptr;
+    }
 
     Polyline &add_polyline(const std::vector<PointType> &points)
     {
@@ -468,6 +640,20 @@ struct SVG
         return *ptr;
     }
 
+    Path &add_path(const std::string &d = "")
+    {
+        auto ptr = new Path(d);
+        elements_.push_back({ELEMENT::PATH, (void *)ptr});
+        return *ptr;
+    }
+
+    Rect &add_rect(double x, double y, double width, double height)
+    {
+        auto ptr = new Rect(x, y, width, height);
+        elements_.push_back({ELEMENT::RECT, (void *)ptr});
+        return *ptr;
+    }
+
     size_t num_elements() const { return elements_.size(); }
 
     bool empty() const { return elements_.empty(); }
@@ -487,6 +673,10 @@ struct SVG
             delete (Circle *)del.second;
         } else if (del.first == ELEMENT::TEXT) {
             delete (Text *)del.second;
+        } else if (del.first == ELEMENT::PATH) {
+            delete (Path *)del.second;
+        } else if (del.first == ELEMENT::RECT) {
+            delete (Rect *)del.second;
         }
     }
 
@@ -522,6 +712,22 @@ struct SVG
         }
         return elements_.at(index).first == ELEMENT::TEXT;
     }
+    bool is_path(int index) const
+    {
+        index = __index(index);
+        if (index < 0) {
+            return false;
+        }
+        return elements_.at(index).first == ELEMENT::PATH;
+    }
+    bool is_rect(int index) const
+    {
+        index = __index(index);
+        if (index < 0) {
+            return false;
+        }
+        return elements_.at(index).first == ELEMENT::RECT;
+    }
 
     Polyline *as_polyline(int index)
     {
@@ -551,6 +757,20 @@ struct SVG
         }
         return (Text *)elements_.at(index % elements_.size()).second;
     }
+    Path *as_path(int index)
+    {
+        if (!is_path(index)) {
+            return nullptr;
+        }
+        return (Path *)elements_.at(index % elements_.size()).second;
+    }
+    Rect *as_rect(int index)
+    {
+        if (!is_rect(index)) {
+            return nullptr;
+        }
+        return (Rect *)elements_.at(index % elements_.size()).second;
+    }
     // const version
     const Polyline *as_polyline(int index) const
     {
@@ -571,6 +791,16 @@ struct SVG
     {
         return const_cast<const Text *>(
             const_cast<SVG *>(this)->as_text(index));
+    }
+    const Path *as_path(int index) const
+    {
+        return const_cast<const Path *>(
+            const_cast<SVG *>(this)->as_path(index));
+    }
+    const Rect *as_rect(int index) const
+    {
+        return const_cast<const Rect *>(
+            const_cast<SVG *>(this)->as_rect(index));
     }
 
     void write(std::ostream &out) const
@@ -627,6 +857,10 @@ struct SVG
                 ((Circle *)pair.second)->write(out);
             } else if (pair.first == ELEMENT::TEXT) {
                 ((Text *)pair.second)->write(out);
+            } else if (pair.first == ELEMENT::PATH) {
+                ((Path *)pair.second)->write(out);
+            } else if (pair.first == ELEMENT::RECT) {
+                ((Rect *)pair.second)->write(out);
             }
         }
         out << "\n</svg>";
@@ -701,6 +935,18 @@ inline std::ostream &operator<<(std::ostream &out, const SVG::Circle &c)
 inline std::ostream &operator<<(std::ostream &out, const SVG::Text &t)
 {
     t.write(out);
+    return out;
+}
+
+inline std::ostream &operator<<(std::ostream &out, const SVG::Path &p)
+{
+    p.write(out);
+    return out;
+}
+
+inline std::ostream &operator<<(std::ostream &out, const SVG::Rect &r)
+{
+    r.write(out);
     return out;
 }
 

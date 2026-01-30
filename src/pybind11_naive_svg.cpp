@@ -37,6 +37,16 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
             },                                                                 \
             rvp::reference_internal)
 
+#define SETUP_FLUENT_API_PYBIND_FOR_SVG_ELEMENT(Klass)                         \
+    SETUP_FLUENT_API_PYBIND(Klass, Color, stroke)                              \
+    SETUP_FLUENT_API_PYBIND(Klass, double, stroke_width)                       \
+    SETUP_FLUENT_API_PYBIND(Klass, Color, fill)                                \
+    SETUP_FLUENT_API_PYBIND(Klass, std::string, dash_array)                    \
+    SETUP_FLUENT_API_PYBIND(Klass, std::string, stroke_linecap)                \
+    SETUP_FLUENT_API_PYBIND(Klass, std::string, stroke_linejoin)               \
+    SETUP_FLUENT_API_PYBIND(Klass, std::string, transform)                     \
+    SETUP_FLUENT_API_PYBIND(Klass, std::string, attrs)
+
     using Color = SVG::Color;
     py::class_<Color>(m, "Color",
                       py::module_local()) //
@@ -113,10 +123,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
             rvp::reference_internal,
             "Set Polyline points from NumPy array") //
         //
-        SETUP_FLUENT_API_PYBIND(Polyline, Color, stroke)
-            SETUP_FLUENT_API_PYBIND(Polyline, double, stroke_width)
-                SETUP_FLUENT_API_PYBIND(Polyline, Color, fill)
-                    SETUP_FLUENT_API_PYBIND(Polyline, std::string, attrs)
+        SETUP_FLUENT_API_PYBIND_FOR_SVG_ELEMENT(Polyline)
         //
         .def("to_string", &Polyline::to_string,
              "Convert Polyline to SVG string representation")
@@ -166,10 +173,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
             },
             rvp::reference_internal,
             "Set Polygon points from NumPy array") //
-        SETUP_FLUENT_API_PYBIND(Polygon, Color, stroke)
-            SETUP_FLUENT_API_PYBIND(Polygon, double, stroke_width)
-                SETUP_FLUENT_API_PYBIND(Polygon, Color, fill)
-                    SETUP_FLUENT_API_PYBIND(Polygon, std::string, attrs)
+        SETUP_FLUENT_API_PYBIND_FOR_SVG_ELEMENT(Polygon)
         //
         .def("to_string", &Polygon::to_string,
              "Convert Polygon to SVG string representation")
@@ -216,10 +220,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
                 SETUP_FLUENT_API_PYBIND(Circle, double, y)
                     SETUP_FLUENT_API_PYBIND(Circle, double, r)
         //
-        SETUP_FLUENT_API_PYBIND(Circle, Color, stroke)
-            SETUP_FLUENT_API_PYBIND(Circle, double, stroke_width)
-                SETUP_FLUENT_API_PYBIND(Circle, Color, fill)
-                    SETUP_FLUENT_API_PYBIND(Circle, std::string, attrs)
+        SETUP_FLUENT_API_PYBIND_FOR_SVG_ELEMENT(Circle)
         //
         .def("to_string", &Circle::to_string,
              "Convert Circle to SVG string representation")
@@ -263,10 +264,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
             SETUP_FLUENT_API_PYBIND(Text, std::vector<std::string>, lines)
                 SETUP_FLUENT_API_PYBIND(Text, double, fontsize)
         //
-        SETUP_FLUENT_API_PYBIND(Text, Color, stroke)
-            SETUP_FLUENT_API_PYBIND(Text, double, stroke_width)
-                SETUP_FLUENT_API_PYBIND(Text, Color, fill)
-                    SETUP_FLUENT_API_PYBIND(Text, std::string, attrs)
+        SETUP_FLUENT_API_PYBIND_FOR_SVG_ELEMENT(Text)
         //
         .def("to_string", &Text::to_string,
              "Convert Text to SVG string representation")
@@ -282,6 +280,72 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
         //
         .def_static("html_escape", &Text::html_escape, "text"_a,
                     "Escape special characters in the text for HTML")
+        //
+        ;
+
+    using Path = SVG::Path;
+    py::class_<Path>(m, "Path", py::module_local()) //
+        .def(py::init<const std::string &>(), "d"_a = "",
+             "Initialize Path with path data string")
+        //
+        SETUP_FLUENT_API_PYBIND(Path, std::string, d)
+        //
+        .def("move_to", &Path::move_to, "x"_a, "y"_a, rvp::reference_internal,
+             "Add M (move to) command")
+        .def("line_to", &Path::line_to, "x"_a, "y"_a, rvp::reference_internal,
+             "Add L (line to) command")
+        .def("close", &Path::close, rvp::reference_internal,
+             "Add Z (close path) command")
+        .def("quadratic", &Path::quadratic, "cx"_a, "cy"_a, "x"_a, "y"_a,
+             rvp::reference_internal, "Add Q (quadratic bezier) command")
+        .def("cubic", &Path::cubic, "c1x"_a, "c1y"_a, "c2x"_a, "c2y"_a, "x"_a,
+             "y"_a, rvp::reference_internal, "Add C (cubic bezier) command")
+        .def("arc", &Path::arc, "rx"_a, "ry"_a, "x_axis_rotation"_a,
+             "large_arc_flag"_a, "sweep_flag"_a, "x"_a, "y"_a,
+             rvp::reference_internal, "Add A (arc) command")
+        //
+        SETUP_FLUENT_API_PYBIND_FOR_SVG_ELEMENT(Path)
+        //
+        .def("to_string", &Path::to_string,
+             "Convert Path to SVG string representation")
+        .def("clone", &Path::clone, "Create a deep copy of the Path object")
+        .def(
+            "__copy__",
+            [](const Path &self, py::dict) -> Path { return self.clone(); },
+            "Create a shallow copy of the Path object")
+        .def(
+            "__deepcopy__",
+            [](const Path &self, py::dict) -> Path { return self.clone(); },
+            "memo"_a, "Create a deep copy of the Path object")
+        //
+        ;
+
+    using Rect = SVG::Rect;
+    py::class_<Rect>(m, "Rect", py::module_local()) //
+        .def(py::init<double, double, double, double>(), "x"_a = 0, "y"_a = 0,
+             "width"_a = 0, "height"_a = 0,
+             "Initialize Rect with x, y, width, height")
+        //
+        SETUP_FLUENT_API_PYBIND(Rect, double, x)
+            SETUP_FLUENT_API_PYBIND(Rect, double, y)
+                SETUP_FLUENT_API_PYBIND(Rect, double, width)
+                    SETUP_FLUENT_API_PYBIND(Rect, double, height)
+                        SETUP_FLUENT_API_PYBIND(Rect, double, rx)
+                            SETUP_FLUENT_API_PYBIND(Rect, double, ry)
+        //
+        SETUP_FLUENT_API_PYBIND_FOR_SVG_ELEMENT(Rect)
+        //
+        .def("to_string", &Rect::to_string,
+             "Convert Rect to SVG string representation")
+        .def("clone", &Rect::clone, "Create a deep copy of the Rect object")
+        .def(
+            "__copy__",
+            [](const Rect &self, py::dict) -> Rect { return self.clone(); },
+            "Create a shallow copy of the Rect object")
+        .def(
+            "__deepcopy__",
+            [](const Rect &self, py::dict) -> Rect { return self.clone(); },
+            "memo"_a, "Create a deep copy of the Rect object")
         //
         ;
 
@@ -316,6 +380,10 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
              "circle"_a, rvp ::reference_internal, "Add a Circle to the SVG")
         .def("add", py::overload_cast<const Text &>(&SVG::add), //
              "text"_a, rvp::reference_internal, "Add a Text to the SVG")
+        .def("add", py::overload_cast<const Path &>(&SVG::add), //
+             "path"_a, rvp::reference_internal, "Add a Path to the SVG")
+        .def("add", py::overload_cast<const Rect &>(&SVG::add), //
+             "rect"_a, rvp::reference_internal, "Add a Rect to the SVG")
         //
         .def(
             "add_polyline",
@@ -353,6 +421,20 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
             },
             "position"_a, py::kw_only(), "text"_a, "fontsize"_a = 10.0,
             rvp::reference_internal, "Add a Text to the SVG")
+        .def(
+            "add_path",
+            [](SVG &self, const std::string &d) -> Path & {
+                return self.add_path(d);
+            },
+            "d"_a = "", rvp::reference_internal, "Add a Path to the SVG")
+        .def(
+            "add_rect",
+            [](SVG &self, double x, double y, double width,
+               double height) -> Rect & {
+                return self.add_rect(x, y, width, height);
+            },
+            "x"_a, "y"_a, "width"_a, "height"_a, rvp::reference_internal,
+            "Add a Rect to the SVG")
         //
         .def("num_elements", &SVG::num_elements,
              "Get the number of elements in the SVG")
@@ -367,6 +449,10 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
              "Check if the element at the given index is a Circle")
         .def("is_text", &SVG::is_text,
              "Check if the element at the given index is a Text")
+        .def("is_path", &SVG::is_path,
+             "Check if the element at the given index is a Path")
+        .def("is_rect", &SVG::is_rect,
+             "Check if the element at the given index is a Rect")
         //
         .def("as_polyline", py::overload_cast<int>(&SVG::as_polyline),
              "index"_a, rvp::reference_internal,
@@ -380,6 +466,12 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
         .def("as_text", py::overload_cast<int>(&SVG::as_text), "index"_a,
              rvp::reference_internal,
              "Get the element at the given index as a Text")
+        .def("as_path", py::overload_cast<int>(&SVG::as_path), "index"_a,
+             rvp::reference_internal,
+             "Get the element at the given index as a Path")
+        .def("as_rect", py::overload_cast<int>(&SVG::as_rect), "index"_a,
+             rvp::reference_internal,
+             "Get the element at the given index as a Rect")
         //
         .def("to_string", &SVG::to_string,
              "Convert the SVG to a string representation")

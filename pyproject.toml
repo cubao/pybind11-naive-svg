@@ -6,7 +6,6 @@ build-backend = "scikit_build_core.build"
 [project]
 name = "naive_svg"
 version = "0.0.5"
-url = "https://github.com/cubao/pybind11-naive-svg"
 description="naive svg writer"
 readme = "README.md"
 authors = [
@@ -24,6 +23,9 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
 ]
+
+[project.urls]
+Homepage = "https://github.com/cubao/pybind11-naive-svg"
 
 [project.optional-dependencies]
 test = ["pytest", "scipy"]
