@@ -50,7 +50,7 @@ DEFAULT_PAINT = {
 
 def parse_color(color_str: str) -> Color:
     """
-    Parse EGeoJSON color string to Color object.
+    Parse color string to Color object.
     Supports: '#ff0000', '#f00', 'red', 'blue', etc.
     """
     if not color_str:
@@ -312,15 +312,15 @@ def geojson2svg(
     use_feature_style: bool = True,
 ):
     """
-    Convert GeoJSON/EGeoJSON to SVG.
+    Convert GeoJSON to SVG.
 
     Args:
-        input_path: Path to input GeoJSON or EGeoJSON file
+        input_path: Path to input GeoJSON file
         output_path: Path to output SVG file
         with_label: Whether to add feature labels
         with_grid: Whether to add grid lines
         grid_step: Grid line spacing in meters
-        use_feature_style: Whether to use paint styles from features (EGeoJSON)
+        use_feature_style: Whether to use paint styles from features
     """
     with Path(input_path).open(encoding="utf-8") as f:
         data = json.load(f)
@@ -367,9 +367,9 @@ def geojson2svg(
             c = [c[0], c[1], 0.0]
         return np.array(c)
 
-    # Check if this is EGeoJSON format (has 'layers' array)
+    # Check if this is layered GeoJSON format (has 'layers' array)
     if "layers" in data:
-        # EGeoJSON v2.0 format
+        # Layered GeoJSON format
         idx = 0
         for layer in data["layers"]:
             layer_meta = layer.get("meta", {})
@@ -454,12 +454,8 @@ def geojson2svg(
     return svg.dump(output_path)
 
 
-# Alias for EGeoJSON-specific processing
-egeojson2svg = geojson2svg
-
-
 if __name__ == "__main__":
     import fire
 
     fire.core.Display = lambda lines, out: print(*lines, file=out)
-    fire.Fire({"geojson2svg": geojson2svg, "egeojson2svg": egeojson2svg})
+    fire.Fire({"geojson2svg": geojson2svg})

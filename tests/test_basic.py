@@ -241,7 +241,7 @@ def test_path_and_rect_add():
 
 
 # =============================================================================
-# EGeoJSON Styling Tests
+# GeoJSON Styling Tests
 # =============================================================================
 
 
@@ -453,12 +453,12 @@ def test_geojson2svg_standard_geojson():
         assert "stroke-width:2" in svg_content
 
 
-def test_geojson2svg_egeojson_format():
-    """Test conversion of EGeoJSON v2.0 format with layers"""
+def test_geojson2svg_layered_format():
+    """Test conversion of layered GeoJSON format"""
     from naive_svg.geojson2svg import geojson2svg
 
-    # Create EGeoJSON with layers
-    egeojson_data = {
+    # Create layered GeoJSON
+    layered_data = {
         "version": 2.0,
         "layers": [
             {
@@ -513,10 +513,10 @@ def test_geojson2svg_egeojson_format():
     }
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = Path(tmpdir) / "test.egeojson"
+        input_path = Path(tmpdir) / "test.geojson"
         output_path = Path(tmpdir) / "output.svg"
 
-        input_path.write_text(json.dumps(egeojson_data))
+        input_path.write_text(json.dumps(layered_data))
 
         geojson2svg(str(input_path), str(output_path), with_grid=False)
 
@@ -615,10 +615,3 @@ def test_geojson2svg_use_feature_style_false():
         # Instead should have random color and default width
         assert "stroke-width:10" not in svg_content
         assert "stroke-width:0.2" in svg_content
-
-
-def test_egeojson2svg_alias():
-    """Test that egeojson2svg is an alias for geojson2svg"""
-    from naive_svg.geojson2svg import egeojson2svg, geojson2svg
-
-    assert egeojson2svg is geojson2svg
