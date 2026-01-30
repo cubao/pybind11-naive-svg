@@ -399,7 +399,9 @@ def test_geojson_showcase():
 
     # 保存 GeoJSON
     geojson_path = OUTPUT_DIR / "showcase.geojson"
-    geojson_path.write_text(json.dumps(geojson, indent=2, ensure_ascii=False))
+    geojson_path.write_text(
+        json.dumps(geojson, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
     print(f"\nGeoJSON 已保存至: {geojson_path}")
 
     # 生成 SVG
@@ -419,13 +421,13 @@ def test_geojson_showcase():
     assert svg_path.exists(), "SVG 文件未生成"
 
     # 验证 GeoJSON 内容
-    saved_geojson = json.loads(geojson_path.read_text())
+    saved_geojson = json.loads(geojson_path.read_text(encoding="utf-8"))
     assert saved_geojson["type"] == "FeatureCollection"
     assert len(saved_geojson["features"]) > 0
     print(f"GeoJSON 包含 {len(saved_geojson['features'])} 个要素")
 
     # 验证 SVG 内容
-    svg_content = svg_path.read_text()
+    svg_content = svg_path.read_text(encoding="utf-8")
     assert "<svg" in svg_content
     assert "<polygon" in svg_content  # 建筑物
     assert "<polyline" in svg_content  # 道路
