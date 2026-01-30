@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import json
+import os
+import tempfile
+
 from naive_svg import SVG, Circle, Color, Path, Polygon, Polyline, Rect, Text, add
 
 
@@ -233,3 +237,394 @@ def test_path_and_rect_add():
     added_rect = svg.add(rect)
     assert isinstance(added_rect, Rect)
     assert svg.is_rect(1)
+
+
+# =============================================================================
+# EGeoJSON Styling Tests
+# =============================================================================
+
+
+def test_parse_color():
+    """Test color parsing function"""
+    from naive_svg.geojson2svg import parse_color
+
+    # Test hex colors (6 digits)
+    c = parse_color("#ff0000")
+    assert c.r() == 255
+    assert c.g() == 0
+    assert c.b() == 0
+
+    c = parse_color("#00ff00")
+    assert c.r() == 0
+    assert c.g() == 255
+    assert c.b() == 0
+
+    # Test hex colors (3 digits)
+    c = parse_color("#f00")
+    assert c.r() == 255
+    assert c.g() == 0
+    assert c.b() == 0
+
+    # Test named colors
+    c = parse_color("red")
+    assert c.r() == 255
+    assert c.g() == 0
+    assert c.b() == 0
+
+    c = parse_color("blue")
+    assert c.r() == 0
+    assert c.g() == 0
+    assert c.b() == 255
+
+    # Test case insensitivity
+    c = parse_color("RED")
+    assert c.r() == 255
+
+    c = parse_color("#FF0000")
+    assert c.r() == 255
+
+    # Test empty/invalid
+    c = parse_color("")
+    assert c.to_string() == "none"
+
+    c = parse_color(None)
+    assert c.to_string() == "none"
+
+
+def test_merge_paint():
+    """Test paint merging with priority"""
+    from naive_svg.geojson2svg import DEFAULT_PAINT, merge_paint
+
+    # Test default values
+    result = merge_paint({}, {})
+    assert result["fill-color"] == DEFAULT_PAINT["fill-color"]
+    assert result["opacity"] == 1.0
+
+    # Test layer paint override
+    result = merge_paint({}, {"fill-color": "#ff0000"})
+    assert result["fill-color"] == "#ff0000"
+
+    # Test feature paint override (takes priority)
+    result = merge_paint({"fill-color": "#00ff00"}, {"fill-color": "#ff0000"})
+    assert result["fill-color"] == "#00ff00"
+
+    # Test partial override
+    result = merge_paint({"opacity": 0.5}, {"fill-color": "#ff0000", "line-width": 2})
+    assert result["fill-color"] == "#ff0000"
+    assert result["opacity"] == 0.5
+    assert result["line-width"] == 2
+
+
+def test_apply_line_style():
+    """Test line style application"""
+    from naive_svg.geojson2svg import apply_line_style
+
+    svg = SVG(100, 100)
+    polyline = svg.add_polyline([[0, 0], [50, 50], [100, 0]])
+
+    paint = {
+        "fill-color": "#ff0000",
+        "line-width": 3.0,
+        "line-type": "dashed",
+        "opacity": 0.5,
+    }
+    apply_line_style(polyline, paint)
+
+    text = svg.to_string()
+    assert "rgb(255,0,0)" in text
+    assert "stroke-width:3" in text
+    assert "stroke-dasharray:5,5" in text
+    assert "stroke-opacity='0.5'" in text
+
+
+def test_apply_polygon_style():
+    """Test polygon style application"""
+    from naive_svg.geojson2svg import apply_polygon_style
+
+    svg = SVG(100, 100)
+    polygon = svg.add_polygon([[0, 0], [50, 50], [100, 0], [0, 0]])
+
+    paint = {
+        "fill-color": "#00ff00",
+        "opacity": 0.7,
+    }
+    apply_polygon_style(polygon, paint)
+
+    text = svg.to_string()
+    assert "rgb(0,128,0)" in text or "rgb(0,255,0)" in text  # green color
+    assert "fill-opacity='0.7'" in text
+
+
+def test_apply_point_style():
+    """Test point style application"""
+    from naive_svg.geojson2svg import apply_point_style
+
+    svg = SVG(100, 100)
+    circle = svg.add_circle([50, 50], r=10)
+
+    paint = {
+        "fill-color": "#0000ff",
+        "opacity": 0.8,
+    }
+    apply_point_style(circle, paint)
+
+    text = svg.to_string()
+    assert "rgb(0,0,255)" in text
+    assert "fill-opacity='0.8'" in text
+
+
+def test_add_text_annotation():
+    """Test text annotation from text-field"""
+    from naive_svg.geojson2svg import add_text_annotation
+    import numpy as np
+
+    svg = SVG(100, 100)
+    properties = {"name": "Test Point", "id": "123"}
+    paint = {"text-field": "name", "text-color": "#ff0000"}
+
+    text_elem = add_text_annotation(svg, np.array([50.0, 50.0]), properties, paint, fontsize=10)
+
+    assert text_elem is not None
+    text = svg.to_string()
+    assert "Test Point" in text
+    assert "rgb(255,0,0)" in text
+
+    # Test with missing field
+    svg2 = SVG(100, 100)
+    paint2 = {"text-field": "nonexistent"}
+    text_elem2 = add_text_annotation(svg2, np.array([50.0, 50.0]), properties, paint2)
+    assert text_elem2 is None
+
+
+def test_geojson2svg_standard_geojson():
+    """Test conversion of standard GeoJSON format"""
+    from naive_svg.geojson2svg import geojson2svg
+
+    # Create a simple GeoJSON FeatureCollection
+    geojson_data = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [[121.48, 31.24], [121.49, 31.25]],
+                },
+                "properties": {
+                    "id": "line1",
+                    "paint": {"fill-color": "#ff0000", "line-width": 2},
+                },
+            },
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [121.485, 31.245]},
+                "properties": {
+                    "name": "Test",
+                    "paint": {
+                        "fill-color": "#00ff00",
+                        "radius": 10,
+                        "text-field": "name",
+                    },
+                },
+            },
+        ],
+    }
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, "test.geojson")
+        output_path = os.path.join(tmpdir, "output.svg")
+
+        with open(input_path, "w") as f:
+            json.dump(geojson_data, f)
+
+        geojson2svg(input_path, output_path, with_grid=False)
+
+        assert os.path.exists(output_path)
+        with open(output_path, "r") as f:
+            svg_content = f.read()
+
+        # Check that SVG was generated with styling
+        assert "<svg" in svg_content
+        assert "<polyline" in svg_content
+        assert "<circle" in svg_content
+        assert "rgb(255,0,0)" in svg_content  # red line
+        assert "stroke-width:2" in svg_content
+
+
+def test_geojson2svg_egeojson_format():
+    """Test conversion of EGeoJSON v2.0 format with layers"""
+    from naive_svg.geojson2svg import geojson2svg
+
+    # Create EGeoJSON with layers
+    egeojson_data = {
+        "version": 2.0,
+        "layers": [
+            {
+                "name": "DashedLines",
+                "meta": {
+                    "paint": {
+                        "fill-color": "#ff0000",
+                        "line-width": 2,
+                        "line-type": "dashed",
+                        "opacity": 0.8,
+                    }
+                },
+                "data": {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "geometry": {
+                                "type": "LineString",
+                                "coordinates": [[121.29, 31.25], [121.30, 31.26]],
+                            },
+                            "properties": {},
+                        }
+                    ],
+                },
+            },
+            {
+                "name": "Points",
+                "meta": {"paint": {"fill-color": "#0000ff", "radius": 5}},
+                "data": {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "geometry": {
+                                "type": "Point",
+                                "coordinates": [121.295, 31.255],
+                            },
+                            "properties": {
+                                "name": "Waypoint",
+                                "paint": {
+                                    "fill-color": "#00ff00",  # Override layer color
+                                    "text-field": "name",
+                                    "text-color": "#000000",
+                                },
+                            },
+                        }
+                    ],
+                },
+            },
+        ],
+    }
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, "test.egeojson")
+        output_path = os.path.join(tmpdir, "output.svg")
+
+        with open(input_path, "w") as f:
+            json.dump(egeojson_data, f)
+
+        geojson2svg(input_path, output_path, with_grid=False)
+
+        assert os.path.exists(output_path)
+        with open(output_path, "r") as f:
+            svg_content = f.read()
+
+        # Check SVG structure
+        assert "<svg" in svg_content
+        assert "<polyline" in svg_content
+        assert "<circle" in svg_content
+
+        # Check dashed line style
+        assert "stroke-dasharray:5,5" in svg_content
+
+        # Check that feature-level paint overrides layer-level
+        # The point should be green (#00ff00), not blue (#0000ff)
+        assert "rgb(0,255,0)" in svg_content or "rgb(0,128,0)" in svg_content
+
+        # Check text annotation
+        assert "Waypoint" in svg_content
+
+
+def test_geojson2svg_polygon():
+    """Test polygon conversion with styling"""
+    from naive_svg.geojson2svg import geojson2svg
+
+    geojson_data = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [121.48, 31.24],
+                            [121.49, 31.24],
+                            [121.49, 31.25],
+                            [121.48, 31.25],
+                            [121.48, 31.24],
+                        ]
+                    ],
+                },
+                "properties": {
+                    "paint": {"fill-color": "#ff0000", "opacity": 0.5}
+                },
+            }
+        ],
+    }
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, "test.geojson")
+        output_path = os.path.join(tmpdir, "output.svg")
+
+        with open(input_path, "w") as f:
+            json.dump(geojson_data, f)
+
+        geojson2svg(input_path, output_path, with_grid=False)
+
+        assert os.path.exists(output_path)
+        with open(output_path, "r") as f:
+            svg_content = f.read()
+
+        assert "<polygon" in svg_content
+        assert "fill-opacity='0.5'" in svg_content
+
+
+def test_geojson2svg_use_feature_style_false():
+    """Test that use_feature_style=False ignores paint styles"""
+    from naive_svg.geojson2svg import geojson2svg
+
+    geojson_data = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [[121.48, 31.24], [121.49, 31.25]],
+                },
+                "properties": {
+                    "paint": {"fill-color": "#ff0000", "line-width": 10}
+                },
+            }
+        ],
+    }
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, "test.geojson")
+        output_path = os.path.join(tmpdir, "output.svg")
+
+        with open(input_path, "w") as f:
+            json.dump(geojson_data, f)
+
+        geojson2svg(input_path, output_path, with_grid=False, use_feature_style=False)
+
+        assert os.path.exists(output_path)
+        with open(output_path, "r") as f:
+            svg_content = f.read()
+
+        # Should not have the specified red color or line-width 10
+        # Instead should have random color and default width
+        assert "stroke-width:10" not in svg_content
+        assert "stroke-width:0.2" in svg_content
+
+
+def test_egeojson2svg_alias():
+    """Test that egeojson2svg is an alias for geojson2svg"""
+    from naive_svg.geojson2svg import egeojson2svg, geojson2svg
+
+    assert egeojson2svg is geojson2svg
