@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import json
-import os
 import tempfile
+from pathlib import Path
 
-from naive_svg import SVG, Circle, Color, Path, Polygon, Polyline, Rect, Text, add
+from naive_svg import SVG, Circle, Color, Polygon, Polyline, Rect, Text, add
+from naive_svg import Path as SvgPath
 
 
 def test_add():
@@ -125,7 +126,7 @@ def test_path():
     path.fill(Color(0xFF0000)).stroke(Color(0x000000))
 
     assert svg.is_path(0)
-    assert isinstance(svg.as_path(0), Path)
+    assert isinstance(svg.as_path(0), SvgPath)
 
     text = svg.to_string()
     assert "<path d='M 100 150 L 120 130 L 120 140 L 180 140 Z'" in text
@@ -227,9 +228,9 @@ def test_path_and_rect_add():
     svg = SVG(200, 200)
 
     # Create standalone Path and add it
-    path = Path("M 10 10 L 50 50")
+    path = SvgPath("M 10 10 L 50 50")
     added_path = svg.add(path)
-    assert isinstance(added_path, Path)
+    assert isinstance(added_path, SvgPath)
     assert svg.is_path(0)
 
     # Create standalone Rect and add it
@@ -375,14 +376,17 @@ def test_apply_point_style():
 
 def test_add_text_annotation():
     """Test text annotation from text-field"""
-    from naive_svg.geojson2svg import add_text_annotation
     import numpy as np
+
+    from naive_svg.geojson2svg import add_text_annotation
 
     svg = SVG(100, 100)
     properties = {"name": "Test Point", "id": "123"}
     paint = {"text-field": "name", "text-color": "#ff0000"}
 
-    text_elem = add_text_annotation(svg, np.array([50.0, 50.0]), properties, paint, fontsize=10)
+    text_elem = add_text_annotation(
+        svg, np.array([50.0, 50.0]), properties, paint, fontsize=10
+    )
 
     assert text_elem is not None
     text = svg.to_string()
@@ -431,17 +435,15 @@ def test_geojson2svg_standard_geojson():
     }
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = os.path.join(tmpdir, "test.geojson")
-        output_path = os.path.join(tmpdir, "output.svg")
+        input_path = Path(tmpdir) / "test.geojson"
+        output_path = Path(tmpdir) / "output.svg"
 
-        with open(input_path, "w") as f:
-            json.dump(geojson_data, f)
+        input_path.write_text(json.dumps(geojson_data))
 
-        geojson2svg(input_path, output_path, with_grid=False)
+        geojson2svg(str(input_path), str(output_path), with_grid=False)
 
-        assert os.path.exists(output_path)
-        with open(output_path, "r") as f:
-            svg_content = f.read()
+        assert output_path.exists()
+        svg_content = output_path.read_text()
 
         # Check that SVG was generated with styling
         assert "<svg" in svg_content
@@ -511,17 +513,15 @@ def test_geojson2svg_egeojson_format():
     }
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = os.path.join(tmpdir, "test.egeojson")
-        output_path = os.path.join(tmpdir, "output.svg")
+        input_path = Path(tmpdir) / "test.egeojson"
+        output_path = Path(tmpdir) / "output.svg"
 
-        with open(input_path, "w") as f:
-            json.dump(egeojson_data, f)
+        input_path.write_text(json.dumps(egeojson_data))
 
-        geojson2svg(input_path, output_path, with_grid=False)
+        geojson2svg(str(input_path), str(output_path), with_grid=False)
 
-        assert os.path.exists(output_path)
-        with open(output_path, "r") as f:
-            svg_content = f.read()
+        assert output_path.exists()
+        svg_content = output_path.read_text()
 
         # Check SVG structure
         assert "<svg" in svg_content
@@ -560,25 +560,21 @@ def test_geojson2svg_polygon():
                         ]
                     ],
                 },
-                "properties": {
-                    "paint": {"fill-color": "#ff0000", "opacity": 0.5}
-                },
+                "properties": {"paint": {"fill-color": "#ff0000", "opacity": 0.5}},
             }
         ],
     }
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = os.path.join(tmpdir, "test.geojson")
-        output_path = os.path.join(tmpdir, "output.svg")
+        input_path = Path(tmpdir) / "test.geojson"
+        output_path = Path(tmpdir) / "output.svg"
 
-        with open(input_path, "w") as f:
-            json.dump(geojson_data, f)
+        input_path.write_text(json.dumps(geojson_data))
 
-        geojson2svg(input_path, output_path, with_grid=False)
+        geojson2svg(str(input_path), str(output_path), with_grid=False)
 
-        assert os.path.exists(output_path)
-        with open(output_path, "r") as f:
-            svg_content = f.read()
+        assert output_path.exists()
+        svg_content = output_path.read_text()
 
         assert "<polygon" in svg_content
         assert "fill-opacity='0.5'" in svg_content
@@ -597,25 +593,23 @@ def test_geojson2svg_use_feature_style_false():
                     "type": "LineString",
                     "coordinates": [[121.48, 31.24], [121.49, 31.25]],
                 },
-                "properties": {
-                    "paint": {"fill-color": "#ff0000", "line-width": 10}
-                },
+                "properties": {"paint": {"fill-color": "#ff0000", "line-width": 10}},
             }
         ],
     }
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = os.path.join(tmpdir, "test.geojson")
-        output_path = os.path.join(tmpdir, "output.svg")
+        input_path = Path(tmpdir) / "test.geojson"
+        output_path = Path(tmpdir) / "output.svg"
 
-        with open(input_path, "w") as f:
-            json.dump(geojson_data, f)
+        input_path.write_text(json.dumps(geojson_data))
 
-        geojson2svg(input_path, output_path, with_grid=False, use_feature_style=False)
+        geojson2svg(
+            str(input_path), str(output_path), with_grid=False, use_feature_style=False
+        )
 
-        assert os.path.exists(output_path)
-        with open(output_path, "r") as f:
-            svg_content = f.read()
+        assert output_path.exists()
+        svg_content = output_path.read_text()
 
         # Should not have the specified red color or line-width 10
         # Instead should have random color and default width

@@ -4,12 +4,12 @@ import colorsys
 import json
 import os
 import random
+from pathlib import Path
 
 import numpy as np
-from pybind11_geobuf import geojson, tf
+from pybind11_geobuf import tf
 
 from naive_svg import SVG, Color
-
 
 # Named colors mapping (subset of CSS named colors)
 NAMED_COLORS = {
@@ -137,7 +137,9 @@ def apply_point_style(element, paint: dict):
     return element
 
 
-def add_text_annotation(svg, point, properties: dict, paint: dict, fontsize: float = 1.0):
+def add_text_annotation(
+    svg, point, properties: dict, paint: dict, fontsize: float = 1.0
+):
     """
     Add text annotation based on text-field.
     """
@@ -187,9 +189,7 @@ def _process_feature(
     # Handle different geometry types
     if geom_type == "Point":
         llas = np.array([coords])
-    elif geom_type == "MultiPoint":
-        llas = np.array(coords)
-    elif geom_type == "LineString":
+    elif geom_type in ("MultiPoint", "LineString"):
         llas = np.array(coords)
     elif geom_type == "MultiLineString":
         # Process each line separately
@@ -322,7 +322,7 @@ def geojson2svg(
         grid_step: Grid line spacing in meters
         use_feature_style: Whether to use paint styles from features (EGeoJSON)
     """
-    with open(input_path, "r", encoding="utf-8") as f:
+    with Path(input_path).open(encoding="utf-8") as f:
         data = json.load(f)
 
     svg = SVG(-1, -1)
@@ -352,9 +352,7 @@ def geojson2svg(
             c = coords
         elif geom_type in ("MultiPoint", "LineString"):
             c = coords[0] if coords else None
-        elif geom_type == "MultiLineString":
-            c = coords[0][0] if coords and coords[0] else None
-        elif geom_type == "Polygon":
+        elif geom_type in ("MultiLineString", "Polygon"):
             c = coords[0][0] if coords and coords[0] else None
         elif geom_type == "MultiPolygon":
             c = coords[0][0][0] if coords and coords[0] and coords[0][0] else None
