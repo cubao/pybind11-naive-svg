@@ -28,7 +28,7 @@ classifiers = [
 Homepage = "https://github.com/cubao/pybind11-naive-svg"
 
 [project.optional-dependencies]
-test = ["pytest", "scipy"]
+test = ["pytest", "pybind11_geobuf"]
 
 
 [tool.scikit-build]
