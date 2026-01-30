@@ -1,13 +1,13 @@
 """
 GeoJSON 样式展示脚本
 
-以北京为参考点，在 ENU 坐标系下构造各种几何要素，
-展示 GeoJSON 到 SVG 的转换以及样式系统。
+以北京为参考点, 在 ENU 坐标系下构造各种几何要素,
+展示 GeoJSON 到 SVG 的转换以及样式系统.
 
-运行方式：
+运行方式:
     pytest tests/test_geojson_showcase.py -v -s
 
-输出：
+输出:
     tests/output/showcase.geojson - GeoJSON 文件
     tests/output/showcase.svg - 转换后的 SVG 文件
 """
@@ -31,10 +31,10 @@ OUTPUT_DIR = Path(__file__).parent / "output"
 
 def enu_to_wgs84(enu_coords: list, anchor_lla: np.ndarray) -> list:
     """
-    将 ENU 坐标 (米) 转换为 WGS84 坐标 (lon, lat)。
+    将 ENU 坐标 (米) 转换为 WGS84 坐标 (lon, lat).
 
     Args:
-        enu_coords: ENU 坐标列表，每个坐标为 [east, north] 或 [east, north, up]
+        enu_coords: ENU 坐标列表, 每个坐标为 [east, north] 或 [east, north, up]
         anchor_lla: 参考点的 WGS84 坐标 [lon, lat, alt]
 
     Returns:
@@ -54,9 +54,9 @@ def enu_to_wgs84(enu_coords: list, anchor_lla: np.ndarray) -> list:
 
 def create_showcase_features() -> dict:
     """
-    在 ENU 坐标系下构造展示要素，然后转换为 WGS84。
+    在 ENU 坐标系下构造展示要素, 然后转换为 WGS84.
 
-    所有坐标以米为单位，原点为北京参考点。
+    所有坐标以米为单位, 原点为北京参考点.
     """
     anchor = np.array([BEIJING_LON, BEIJING_LAT, 0.0])
     features = []
@@ -65,7 +65,7 @@ def create_showcase_features() -> dict:
     # 1. 建筑物 - 使用 Polygon
     # =========================================================================
 
-    # 建筑A：红色半透明正方形 (100m x 100m)
+    # 建筑A: 红色半透明正方形 (100m x 100m)
     building_a_enu = [
         [0, 0],
         [100, 0],
@@ -92,7 +92,7 @@ def create_showcase_features() -> dict:
         }
     )
 
-    # 建筑B：蓝色半透明矩形 (150m x 80m)
+    # 建筑B: 蓝色半透明矩形 (150m x 80m)
     building_b_enu = [
         [150, 20],
         [300, 20],
@@ -123,7 +123,7 @@ def create_showcase_features() -> dict:
     # 2. 道路 - 使用 LineString
     # =========================================================================
 
-    # 主干道：深蓝色实线
+    # 主干道: 深蓝色实线
     main_road_enu = [
         [-50, 50],
         [50, 50],
@@ -150,7 +150,7 @@ def create_showcase_features() -> dict:
         }
     )
 
-    # 辅路：橙色虚线
+    # 辅路: 橙色虚线
     secondary_road_enu = [
         [50, -30],
         [50, 50],
@@ -175,7 +175,7 @@ def create_showcase_features() -> dict:
         }
     )
 
-    # 小径：灰色细虚线
+    # 小径: 灰色细虚线
     path_enu = [
         [200, 100],
         [220, 130],
@@ -207,7 +207,7 @@ def create_showcase_features() -> dict:
     # 3. 兴趣点 - 使用 Point
     # =========================================================================
 
-    # 餐厅：橙色圆点，带标注
+    # 餐厅: 橙色圆点, 带标注
     features.append(
         {
             "type": "Feature",
@@ -228,7 +228,7 @@ def create_showcase_features() -> dict:
         }
     )
 
-    # 地铁站：蓝色大圆点，带标注
+    # 地铁站: 蓝色大圆点, 带标注
     features.append(
         {
             "type": "Feature",
@@ -249,7 +249,7 @@ def create_showcase_features() -> dict:
         }
     )
 
-    # 停车场：灰色圆点
+    # 停车场: 灰色圆点
     features.append(
         {
             "type": "Feature",
@@ -378,16 +378,14 @@ def create_showcase_features() -> dict:
     )
 
     # 构建 FeatureCollection
-    geojson = {"type": "FeatureCollection", "features": features}
-
-    return geojson
+    return {"type": "FeatureCollection", "features": features}
 
 
 def test_geojson_showcase():
     """
-    生成展示性 GeoJSON 和 SVG 文件。
+    生成展示性 GeoJSON 和 SVG 文件.
 
-    此测试会：
+    此测试会:
     1. 在 ENU 坐标系下构造各种几何要素
     2. 转换为 WGS84 坐标
     3. 保存为 GeoJSON 文件
