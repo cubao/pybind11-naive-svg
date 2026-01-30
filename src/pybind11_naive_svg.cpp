@@ -429,10 +429,8 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
             "d"_a = "", rvp::reference_internal, "Add a Path to the SVG")
         .def(
             "add_rect",
-            [](SVG &self, double x, double y, double width,
-               double height) -> Rect & {
-                return self.add_rect(x, y, width, height);
-            },
+            [](SVG &self, double x, double y, double width, double height)
+                -> Rect & { return self.add_rect(x, y, width, height); },
             "x"_a, "y"_a, "width"_a, "height"_a, rvp::reference_internal,
             "Add a Rect to the SVG")
         //

@@ -251,7 +251,7 @@ struct SVG
                                         const SVG::Circle &e);
         void write(std::ostream &out) const
         {
-            out << "<circle r='" << r_ << "'"               //
+            out << "<circle r='" << r_ << "'" //
                 << " cx='" << x() << "' cy='" << y() << "'";
             write_style(out);
             if (!attrs_.empty()) {
