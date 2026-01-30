@@ -1,8 +1,10 @@
 from __future__ import annotations
+import collections.abc
 import numpy
+import numpy.typing
 import typing
 
-__all__ = [
+__all__: list[str] = [
     "Circle",
     "Color",
     "Path",
@@ -24,7 +26,9 @@ class Circle:
         Create a deep copy of the Circle object
         """
     def __init__(
-        self, center: numpy.ndarray[numpy.float64[2, 1]], r: float = 1.0
+        self,
+        center: typing.Annotated[numpy.typing.ArrayLike, numpy.float64, "[2, 1]"],
+        r: typing.SupportsFloat = 1.0,
     ) -> None:
         """
         Initialize Circle with center point and radius
@@ -34,12 +38,14 @@ class Circle:
     @typing.overload
     def attrs(self, arg0: str) -> Circle: ...
     @typing.overload
-    def center(self) -> numpy.ndarray[numpy.float64[2, 1]]:
+    def center(self) -> typing.Annotated[numpy.typing.NDArray[numpy.float64], "[2, 1]"]:
         """
         Get the center of the Circle
         """
     @typing.overload
-    def center(self, arg0: numpy.ndarray[numpy.float64[2, 1]]) -> Circle:
+    def center(
+        self, arg0: typing.Annotated[numpy.typing.ArrayLike, numpy.float64, "[2, 1]"]
+    ) -> Circle:
         """
         Set the center of the Circle
         """
@@ -58,7 +64,7 @@ class Circle:
     @typing.overload
     def r(self) -> float: ...
     @typing.overload
-    def r(self, arg0: float) -> Circle: ...
+    def r(self, arg0: typing.SupportsFloat) -> Circle: ...
     @typing.overload
     def stroke(self) -> Color: ...
     @typing.overload
@@ -74,7 +80,7 @@ class Circle:
     @typing.overload
     def stroke_width(self) -> float: ...
     @typing.overload
-    def stroke_width(self, arg0: float) -> Circle: ...
+    def stroke_width(self, arg0: typing.SupportsFloat) -> Circle: ...
     def to_string(self) -> str:
         """
         Convert Circle to SVG string representation
@@ -86,11 +92,11 @@ class Circle:
     @typing.overload
     def x(self) -> float: ...
     @typing.overload
-    def x(self, arg0: float) -> Circle: ...
+    def x(self, arg0: typing.SupportsFloat) -> Circle: ...
     @typing.overload
     def y(self) -> float: ...
     @typing.overload
-    def y(self, arg0: float) -> Circle: ...
+    def y(self, arg0: typing.SupportsFloat) -> Circle: ...
 
 class Color:
     @staticmethod
@@ -107,12 +113,18 @@ class Color:
         Create a deep copy of the Color object
         """
     @typing.overload
-    def __init__(self, rgb: int = -1) -> None:
+    def __init__(self, rgb: typing.SupportsInt = -1) -> None:
         """
         Initialize Color with RGB value
         """
     @typing.overload
-    def __init__(self, r: int, g: int, b: int, a: float = -1.0) -> None:
+    def __init__(
+        self,
+        r: typing.SupportsInt,
+        g: typing.SupportsInt,
+        b: typing.SupportsInt,
+        a: typing.SupportsFloat = -1.0,
+    ) -> None:
         """
         Initialize Color with R, G, B, and optional Alpha values
         """
@@ -123,11 +135,11 @@ class Color:
     @typing.overload
     def a(self) -> float: ...
     @typing.overload
-    def a(self, arg0: float) -> Color: ...
+    def a(self, arg0: typing.SupportsFloat) -> Color: ...
     @typing.overload
     def b(self) -> int: ...
     @typing.overload
-    def b(self, arg0: int) -> Color: ...
+    def b(self, arg0: typing.SupportsInt) -> Color: ...
     def clone(self) -> Color:
         """
         Create a deep copy of the Color object
@@ -135,7 +147,7 @@ class Color:
     @typing.overload
     def g(self) -> int: ...
     @typing.overload
-    def g(self, arg0: int) -> Color: ...
+    def g(self, arg0: typing.SupportsInt) -> Color: ...
     def invalid(self) -> bool:
         """
         Check if the color is invalid
@@ -143,11 +155,116 @@ class Color:
     @typing.overload
     def r(self) -> int: ...
     @typing.overload
-    def r(self, arg0: int) -> Color: ...
+    def r(self, arg0: typing.SupportsInt) -> Color: ...
     def to_string(self) -> str:
         """
         Convert color to string representation
         """
+
+class Path:
+    def __copy__(self, arg0: dict) -> Path:
+        """
+        Create a shallow copy of the Path object
+        """
+    def __deepcopy__(self, memo: dict) -> Path:
+        """
+        Create a deep copy of the Path object
+        """
+    def __init__(self, d: str = "") -> None:
+        """
+        Initialize Path with path data string
+        """
+    def arc(
+        self,
+        rx: typing.SupportsFloat,
+        ry: typing.SupportsFloat,
+        x_axis_rotation: typing.SupportsFloat,
+        large_arc_flag: typing.SupportsInt,
+        sweep_flag: typing.SupportsInt,
+        x: typing.SupportsFloat,
+        y: typing.SupportsFloat,
+    ) -> Path:
+        """
+        Add A (arc) command
+        """
+    @typing.overload
+    def attrs(self) -> str: ...
+    @typing.overload
+    def attrs(self, arg0: str) -> Path: ...
+    def clone(self) -> Path:
+        """
+        Create a deep copy of the Path object
+        """
+    def close(self) -> Path:
+        """
+        Add Z (close path) command
+        """
+    def cubic(
+        self,
+        c1x: typing.SupportsFloat,
+        c1y: typing.SupportsFloat,
+        c2x: typing.SupportsFloat,
+        c2y: typing.SupportsFloat,
+        x: typing.SupportsFloat,
+        y: typing.SupportsFloat,
+    ) -> Path:
+        """
+        Add C (cubic bezier) command
+        """
+    @typing.overload
+    def d(self) -> str: ...
+    @typing.overload
+    def d(self, arg0: str) -> Path: ...
+    @typing.overload
+    def dash_array(self) -> str: ...
+    @typing.overload
+    def dash_array(self, arg0: str) -> Path: ...
+    @typing.overload
+    def fill(self) -> Color: ...
+    @typing.overload
+    def fill(self, arg0: Color) -> Path: ...
+    def line_to(self, x: typing.SupportsFloat, y: typing.SupportsFloat) -> Path:
+        """
+        Add L (line to) command
+        """
+    def move_to(self, x: typing.SupportsFloat, y: typing.SupportsFloat) -> Path:
+        """
+        Add M (move to) command
+        """
+    def quadratic(
+        self,
+        cx: typing.SupportsFloat,
+        cy: typing.SupportsFloat,
+        x: typing.SupportsFloat,
+        y: typing.SupportsFloat,
+    ) -> Path:
+        """
+        Add Q (quadratic bezier) command
+        """
+    @typing.overload
+    def stroke(self) -> Color: ...
+    @typing.overload
+    def stroke(self, arg0: Color) -> Path: ...
+    @typing.overload
+    def stroke_linecap(self) -> str: ...
+    @typing.overload
+    def stroke_linecap(self, arg0: str) -> Path: ...
+    @typing.overload
+    def stroke_linejoin(self) -> str: ...
+    @typing.overload
+    def stroke_linejoin(self, arg0: str) -> Path: ...
+    @typing.overload
+    def stroke_width(self) -> float: ...
+    @typing.overload
+    def stroke_width(self, arg0: typing.SupportsFloat) -> Path: ...
+    def to_string(self) -> str:
+        """
+        Convert Path to SVG string representation
+        """
+    @typing.overload
+    def transform(self) -> str: ...
+    @typing.overload
+    def transform(self, arg0: str) -> Path: ...
 
 class Polygon:
     def __copy__(self, arg0: dict) -> Polygon:
@@ -160,7 +277,9 @@ class Polygon:
         """
     def __init__(
         self,
-        points: numpy.ndarray[numpy.float64[m, 2], numpy.ndarray.flags.c_contiguous],
+        points: typing.Annotated[
+            numpy.typing.NDArray[numpy.float64], "[m, 2]", "flags.c_contiguous"
+        ],
     ) -> None:
         """
         Initialize Polygon with a set of points
@@ -182,7 +301,10 @@ class Polygon:
     @typing.overload
     def fill(self, arg0: Color) -> Polygon: ...
     def from_numpy(
-        self, arg0: numpy.ndarray[numpy.float64[m, 2], numpy.ndarray.flags.c_contiguous]
+        self,
+        arg0: typing.Annotated[
+            numpy.typing.NDArray[numpy.float64], "[m, 2]", "flags.c_contiguous"
+        ],
     ) -> Polygon:
         """
         Set Polygon points from NumPy array
@@ -202,8 +324,10 @@ class Polygon:
     @typing.overload
     def stroke_width(self) -> float: ...
     @typing.overload
-    def stroke_width(self, arg0: float) -> Polygon: ...
-    def to_numpy(self) -> numpy.ndarray[numpy.float64[m, 2]]:
+    def stroke_width(self, arg0: typing.SupportsFloat) -> Polygon: ...
+    def to_numpy(
+        self,
+    ) -> typing.Annotated[numpy.typing.NDArray[numpy.float64], "[m, 2]"]:
         """
         Convert Polygon points to NumPy array
         """
@@ -227,7 +351,9 @@ class Polyline:
         """
     def __init__(
         self,
-        points: numpy.ndarray[numpy.float64[m, 2], numpy.ndarray.flags.c_contiguous],
+        points: typing.Annotated[
+            numpy.typing.NDArray[numpy.float64], "[m, 2]", "flags.c_contiguous"
+        ],
     ) -> None:
         """
         Initialize Polyline with a set of points
@@ -249,7 +375,10 @@ class Polyline:
     @typing.overload
     def fill(self, arg0: Color) -> Polyline: ...
     def from_numpy(
-        self, arg0: numpy.ndarray[numpy.float64[m, 2], numpy.ndarray.flags.c_contiguous]
+        self,
+        arg0: typing.Annotated[
+            numpy.typing.NDArray[numpy.float64], "[m, 2]", "flags.c_contiguous"
+        ],
     ) -> Polyline:
         """
         Set Polyline points from NumPy array
@@ -269,8 +398,10 @@ class Polyline:
     @typing.overload
     def stroke_width(self) -> float: ...
     @typing.overload
-    def stroke_width(self, arg0: float) -> Polyline: ...
-    def to_numpy(self) -> numpy.ndarray[numpy.float64[m, 2]]:
+    def stroke_width(self, arg0: typing.SupportsFloat) -> Polyline: ...
+    def to_numpy(
+        self,
+    ) -> typing.Annotated[numpy.typing.NDArray[numpy.float64], "[m, 2]"]:
         """
         Convert Polyline points to NumPy array
         """
@@ -283,99 +414,6 @@ class Polyline:
     @typing.overload
     def transform(self, arg0: str) -> Polyline: ...
 
-class Path:
-    def __copy__(self, arg0: dict) -> Path:
-        """
-        Create a shallow copy of the Path object
-        """
-    def __deepcopy__(self, memo: dict) -> Path:
-        """
-        Create a deep copy of the Path object
-        """
-    def __init__(self, d: str = "") -> None:
-        """
-        Initialize Path with path data string
-        """
-    def arc(
-        self,
-        rx: float,
-        ry: float,
-        x_axis_rotation: float,
-        large_arc_flag: int,
-        sweep_flag: int,
-        x: float,
-        y: float,
-    ) -> Path:
-        """
-        Add A (arc) command
-        """
-    @typing.overload
-    def attrs(self) -> str: ...
-    @typing.overload
-    def attrs(self, arg0: str) -> Path: ...
-    def clone(self) -> Path:
-        """
-        Create a deep copy of the Path object
-        """
-    def close(self) -> Path:
-        """
-        Add Z (close path) command
-        """
-    def cubic(
-        self, c1x: float, c1y: float, c2x: float, c2y: float, x: float, y: float
-    ) -> Path:
-        """
-        Add C (cubic bezier) command
-        """
-    @typing.overload
-    def d(self) -> str: ...
-    @typing.overload
-    def d(self, arg0: str) -> Path: ...
-    @typing.overload
-    def dash_array(self) -> str: ...
-    @typing.overload
-    def dash_array(self, arg0: str) -> Path: ...
-    @typing.overload
-    def fill(self) -> Color: ...
-    @typing.overload
-    def fill(self, arg0: Color) -> Path: ...
-    def line_to(self, x: float, y: float) -> Path:
-        """
-        Add L (line to) command
-        """
-    def move_to(self, x: float, y: float) -> Path:
-        """
-        Add M (move to) command
-        """
-    def quadratic(self, cx: float, cy: float, x: float, y: float) -> Path:
-        """
-        Add Q (quadratic bezier) command
-        """
-    @typing.overload
-    def stroke(self) -> Color: ...
-    @typing.overload
-    def stroke(self, arg0: Color) -> Path: ...
-    @typing.overload
-    def stroke_linecap(self) -> str: ...
-    @typing.overload
-    def stroke_linecap(self, arg0: str) -> Path: ...
-    @typing.overload
-    def stroke_linejoin(self) -> str: ...
-    @typing.overload
-    def stroke_linejoin(self, arg0: str) -> Path: ...
-    @typing.overload
-    def stroke_width(self) -> float: ...
-    @typing.overload
-    def stroke_width(self, arg0: float) -> Path: ...
-    def to_string(self) -> str:
-        """
-        Convert Path to SVG string representation
-        """
-    @typing.overload
-    def transform(self) -> str: ...
-    @typing.overload
-    def transform(self, arg0: str) -> Path: ...
-
 class Rect:
     def __copy__(self, arg0: dict) -> Rect:
         """
@@ -386,7 +424,11 @@ class Rect:
         Create a deep copy of the Rect object
         """
     def __init__(
-        self, x: float = 0, y: float = 0, width: float = 0, height: float = 0
+        self,
+        x: typing.SupportsFloat = 0,
+        y: typing.SupportsFloat = 0,
+        width: typing.SupportsFloat = 0,
+        height: typing.SupportsFloat = 0,
     ) -> None:
         """
         Initialize Rect with x, y, width, height
@@ -410,15 +452,15 @@ class Rect:
     @typing.overload
     def height(self) -> float: ...
     @typing.overload
-    def height(self, arg0: float) -> Rect: ...
+    def height(self, arg0: typing.SupportsFloat) -> Rect: ...
     @typing.overload
     def rx(self) -> float: ...
     @typing.overload
-    def rx(self, arg0: float) -> Rect: ...
+    def rx(self, arg0: typing.SupportsFloat) -> Rect: ...
     @typing.overload
     def ry(self) -> float: ...
     @typing.overload
-    def ry(self, arg0: float) -> Rect: ...
+    def ry(self, arg0: typing.SupportsFloat) -> Rect: ...
     @typing.overload
     def stroke(self) -> Color: ...
     @typing.overload
@@ -434,7 +476,7 @@ class Rect:
     @typing.overload
     def stroke_width(self) -> float: ...
     @typing.overload
-    def stroke_width(self, arg0: float) -> Rect: ...
+    def stroke_width(self, arg0: typing.SupportsFloat) -> Rect: ...
     def to_string(self) -> str:
         """
         Convert Rect to SVG string representation
@@ -446,15 +488,15 @@ class Rect:
     @typing.overload
     def width(self) -> float: ...
     @typing.overload
-    def width(self, arg0: float) -> Rect: ...
+    def width(self, arg0: typing.SupportsFloat) -> Rect: ...
     @typing.overload
     def x(self) -> float: ...
     @typing.overload
-    def x(self, arg0: float) -> Rect: ...
+    def x(self, arg0: typing.SupportsFloat) -> Rect: ...
     @typing.overload
     def y(self) -> float: ...
     @typing.overload
-    def y(self, arg0: float) -> Rect: ...
+    def y(self, arg0: typing.SupportsFloat) -> Rect: ...
 
 class SVG:
     def __copy__(self, arg0: dict) -> SVG:
@@ -465,7 +507,9 @@ class SVG:
         """
         Create a deep copy of the SVG object
         """
-    def __init__(self, width: float, height: float) -> None:
+    def __init__(
+        self, width: typing.SupportsFloat, height: typing.SupportsFloat
+    ) -> None:
         """
         Initialize SVG with width and height
         """
@@ -500,66 +544,79 @@ class SVG:
         Add a Rect to the SVG
         """
     def add_circle(
-        self, center: numpy.ndarray[numpy.float64[2, 1]], *, r: float = 1.0
+        self,
+        center: typing.Annotated[numpy.typing.ArrayLike, numpy.float64, "[2, 1]"],
+        *,
+        r: typing.SupportsFloat = 1.0,
     ) -> Circle:
         """
         Add a Circle to the SVG
         """
+    def add_path(self, d: str = "") -> Path:
+        """
+        Add a Path to the SVG
+        """
     def add_polygon(
         self,
-        points: numpy.ndarray[numpy.float64[m, 2], numpy.ndarray.flags.c_contiguous],
+        points: typing.Annotated[
+            numpy.typing.NDArray[numpy.float64], "[m, 2]", "flags.c_contiguous"
+        ],
     ) -> Polygon:
         """
         Add a Polygon to the SVG using NumPy array of points
         """
     def add_polyline(
         self,
-        points: numpy.ndarray[numpy.float64[m, 2], numpy.ndarray.flags.c_contiguous],
+        points: typing.Annotated[
+            numpy.typing.NDArray[numpy.float64], "[m, 2]", "flags.c_contiguous"
+        ],
     ) -> Polyline:
         """
         Add a Polyline to the SVG using NumPy array of points
         """
+    def add_rect(
+        self,
+        x: typing.SupportsFloat,
+        y: typing.SupportsFloat,
+        width: typing.SupportsFloat,
+        height: typing.SupportsFloat,
+    ) -> Rect:
+        """
+        Add a Rect to the SVG
+        """
     def add_text(
         self,
-        position: numpy.ndarray[numpy.float64[2, 1]],
+        position: typing.Annotated[numpy.typing.ArrayLike, numpy.float64, "[2, 1]"],
         *,
         text: str,
-        fontsize: float = 10.0,
+        fontsize: typing.SupportsFloat = 10.0,
     ) -> Text:
         """
         Add a Text to the SVG
         """
-    def add_path(self, d: str = "") -> Path:
-        """
-        Add a Path to the SVG
-        """
-    def add_rect(self, x: float, y: float, width: float, height: float) -> Rect:
-        """
-        Add a Rect to the SVG
-        """
-    def as_circle(self, index: int) -> Circle:
+    def as_circle(self, index: typing.SupportsInt) -> Circle:
         """
         Get the element at the given index as a Circle
         """
-    def as_polygon(self, index: int) -> Polygon:
-        """
-        Get the element at the given index as a Polygon
-        """
-    def as_polyline(self, index: int) -> Polyline:
-        """
-        Get the element at the given index as a Polyline
-        """
-    def as_text(self, index: int) -> Text:
-        """
-        Get the element at the given index as a Text
-        """
-    def as_path(self, index: int) -> Path:
+    def as_path(self, index: typing.SupportsInt) -> Path:
         """
         Get the element at the given index as a Path
         """
-    def as_rect(self, index: int) -> Rect:
+    def as_polygon(self, index: typing.SupportsInt) -> Polygon:
+        """
+        Get the element at the given index as a Polygon
+        """
+    def as_polyline(self, index: typing.SupportsInt) -> Polyline:
+        """
+        Get the element at the given index as a Polyline
+        """
+    def as_rect(self, index: typing.SupportsInt) -> Rect:
         """
         Get the element at the given index as a Rect
+        """
+    def as_text(self, index: typing.SupportsInt) -> Text:
+        """
+        Get the element at the given index as a Text
         """
     @typing.overload
     def attrs(self) -> str: ...
@@ -588,42 +645,42 @@ class SVG:
     @typing.overload
     def grid_step(self) -> float: ...
     @typing.overload
-    def grid_step(self, arg0: float) -> SVG: ...
+    def grid_step(self, arg0: typing.SupportsFloat) -> SVG: ...
     @typing.overload
     def grid_x(self) -> list[float]: ...
     @typing.overload
-    def grid_x(self, arg0: list[float]) -> SVG: ...
+    def grid_x(self, arg0: collections.abc.Sequence[typing.SupportsFloat]) -> SVG: ...
     @typing.overload
     def grid_y(self) -> list[float]: ...
     @typing.overload
-    def grid_y(self, arg0: list[float]) -> SVG: ...
+    def grid_y(self, arg0: collections.abc.Sequence[typing.SupportsFloat]) -> SVG: ...
     @typing.overload
     def height(self) -> float: ...
     @typing.overload
-    def height(self, arg0: float) -> SVG: ...
-    def is_circle(self, arg0: int) -> bool:
+    def height(self, arg0: typing.SupportsFloat) -> SVG: ...
+    def is_circle(self, arg0: typing.SupportsInt) -> bool:
         """
         Check if the element at the given index is a Circle
         """
-    def is_polygon(self, arg0: int) -> bool:
-        """
-        Check if the element at the given index is a Polygon
-        """
-    def is_polyline(self, arg0: int) -> bool:
-        """
-        Check if the element at the given index is a Polyline
-        """
-    def is_text(self, arg0: int) -> bool:
-        """
-        Check if the element at the given index is a Text
-        """
-    def is_path(self, arg0: int) -> bool:
+    def is_path(self, arg0: typing.SupportsInt) -> bool:
         """
         Check if the element at the given index is a Path
         """
-    def is_rect(self, arg0: int) -> bool:
+    def is_polygon(self, arg0: typing.SupportsInt) -> bool:
+        """
+        Check if the element at the given index is a Polygon
+        """
+    def is_polyline(self, arg0: typing.SupportsInt) -> bool:
+        """
+        Check if the element at the given index is a Polyline
+        """
+    def is_rect(self, arg0: typing.SupportsInt) -> bool:
         """
         Check if the element at the given index is a Rect
+        """
+    def is_text(self, arg0: typing.SupportsInt) -> bool:
+        """
+        Check if the element at the given index is a Text
         """
     def num_elements(self) -> int:
         """
@@ -640,11 +697,11 @@ class SVG:
     @typing.overload
     def view_box(self) -> list[float]: ...
     @typing.overload
-    def view_box(self, arg0: list[float]) -> SVG: ...
+    def view_box(self, arg0: collections.abc.Sequence[typing.SupportsFloat]) -> SVG: ...
     @typing.overload
     def width(self) -> float: ...
     @typing.overload
-    def width(self, arg0: float) -> SVG: ...
+    def width(self, arg0: typing.SupportsFloat) -> SVG: ...
 
 class Text:
     @staticmethod
@@ -662,9 +719,9 @@ class Text:
         """
     def __init__(
         self,
-        position: numpy.ndarray[numpy.float64[2, 1]],
+        position: typing.Annotated[numpy.typing.ArrayLike, numpy.float64, "[2, 1]"],
         text: str,
-        fontsize: float = 10.0,
+        fontsize: typing.SupportsFloat = 10.0,
     ) -> None:
         """
         Initialize Text with position, content, and font size
@@ -688,18 +745,22 @@ class Text:
     @typing.overload
     def fontsize(self) -> float: ...
     @typing.overload
-    def fontsize(self, arg0: float) -> Text: ...
+    def fontsize(self, arg0: typing.SupportsFloat) -> Text: ...
     @typing.overload
     def lines(self) -> list[str]: ...
     @typing.overload
-    def lines(self, arg0: list[str]) -> Text: ...
+    def lines(self, arg0: collections.abc.Sequence[str]) -> Text: ...
     @typing.overload
-    def position(self) -> numpy.ndarray[numpy.float64[2, 1]]:
+    def position(
+        self,
+    ) -> typing.Annotated[numpy.typing.NDArray[numpy.float64], "[2, 1]"]:
         """
         Get the position of the Text
         """
     @typing.overload
-    def position(self, arg0: numpy.ndarray[numpy.float64[2, 1]]) -> Text:
+    def position(
+        self, arg0: typing.Annotated[numpy.typing.ArrayLike, numpy.float64, "[2, 1]"]
+    ) -> Text:
         """
         Set the position of the Text
         """
@@ -718,7 +779,7 @@ class Text:
     @typing.overload
     def stroke_width(self) -> float: ...
     @typing.overload
-    def stroke_width(self, arg0: float) -> Text: ...
+    def stroke_width(self, arg0: typing.SupportsFloat) -> Text: ...
     @typing.overload
     def text(self) -> str: ...
     @typing.overload
@@ -732,11 +793,11 @@ class Text:
     @typing.overload
     def transform(self, arg0: str) -> Text: ...
 
-def add(arg0: int, arg1: int) -> int:
+def add(arg0: typing.SupportsInt, arg1: typing.SupportsInt) -> int:
     """
     Add two numbers
 
     Some other explanation about the add function.
     """
 
-__version__: str = "0.0.3"
+__version__: str = "0.0.5"
