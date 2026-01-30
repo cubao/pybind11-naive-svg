@@ -1,0 +1,36 @@
+<svg width='420' height='210' viewBox='-60 -40 420 210' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' bbox='[116.4067, 39.90384, 116.41161, 39.90573]'>
+	<polyline style='stroke:rgb(155,155,155);stroke-width:1;fill:none' points='0,0 0,210 ' />
+	<polyline style='stroke:rgb(155,155,155);stroke-width:1;fill:none' points='50,0 50,210 ' />
+	<polyline style='stroke:rgb(155,155,155);stroke-width:1;fill:none' points='100,0 100,210 ' />
+	<polyline style='stroke:rgb(155,155,155);stroke-width:1;fill:none' points='150,0 150,210 ' />
+	<polyline style='stroke:rgb(155,155,155);stroke-width:1;fill:none' points='200,0 200,210 ' />
+	<polyline style='stroke:rgb(155,155,155);stroke-width:1;fill:none' points='250,0 250,210 ' />
+	<polyline style='stroke:rgb(155,155,155);stroke-width:1;fill:none' points='300,0 300,210 ' />
+	<polyline style='stroke:rgb(155,155,155);stroke-width:1;fill:none' points='350,0 350,210 ' />
+	<polyline style='stroke:rgb(155,155,155);stroke-width:1;fill:none' points='400,0 400,210 ' />
+	<polyline style='stroke:rgb(155,155,155);stroke-width:1;fill:none' points='0,0 420,0 ' />
+	<polyline style='stroke:rgb(155,155,155);stroke-width:1;fill:none' points='0,50 420,50 ' />
+	<polyline style='stroke:rgb(155,155,155);stroke-width:1;fill:none' points='0,100 420,100 ' />
+	<polyline style='stroke:rgb(155,155,155);stroke-width:1;fill:none' points='0,150 420,150 ' />
+	<polyline style='stroke:rgb(155,155,155);stroke-width:1;fill:none' points='0,200 420,200 ' />
+	<polygon style='stroke:rgb(255,107,107);stroke-width:2;fill:rgb(255,107,107)' points='0,0 100,0 100,100 0,100 0,0 ' fill-opacity='0.7' stroke-opacity='0.7' />
+	<polygon style='stroke:rgb(78,205,196);stroke-width:1.5;fill:rgb(78,205,196)' points='150,20 300,20 300,100 150,100 150,20 ' fill-opacity='0.6' stroke-opacity='0.6' />
+	<polyline style='stroke:rgb(0,0,128);stroke-width:4;fill:none' points='-50,50 50,50 120,60 200,60 350,50 ' />
+	<polyline style='stroke:rgb(255,165,0);stroke-width:2;fill:none;stroke-dasharray:5,5' points='50,-30 50,50 50,150 ' />
+	<polyline style='stroke:rgb(128,128,128);stroke-width:1;fill:none;stroke-dasharray:5,5' points='200,100 220,130 250,140 280,130 300,150 ' stroke-opacity='0.8' />
+	<circle r='8' cx='50' cy='120' style='stroke:rgb(255,165,0);stroke-width:0.5;fill:rgb(255,165,0)' />
+	<text x='50' y='120' fill='rgb(51,51,51)' font-size='16' font-family='monospace'>餐厅</text>
+	<circle r='10' cx='-30' cy='50' style='stroke:rgb(0,102,204);stroke-width:0.5;fill:rgb(0,102,204)' />
+	<text x='-30' y='50' fill='rgb(0,102,204)' font-size='20' font-family='monospace'>地铁站</text>
+	<circle r='6' cx='320' cy='80' style='stroke:rgb(102,102,102);stroke-width:0.5;fill:rgb(102,102,102)' fill-opacity='0.9' />
+	<circle r='3' cx='0' cy='50' style='stroke:rgb(255,204,0);stroke-width:0.5;fill:rgb(255,204,0)' fill-opacity='0.9' />
+	<circle r='3' cx='40' cy='50' style='stroke:rgb(255,204,0);stroke-width:0.5;fill:rgb(255,204,0)' fill-opacity='0.9' />
+	<circle r='3' cx='80' cy='55' style='stroke:rgb(255,204,0);stroke-width:0.5;fill:rgb(255,204,0)' fill-opacity='0.9' />
+	<circle r='3' cx='160' cy='60' style='stroke:rgb(255,204,0);stroke-width:0.5;fill:rgb(255,204,0)' fill-opacity='0.9' />
+	<circle r='3' cx='240' cy='55' style='stroke:rgb(255,204,0);stroke-width:0.5;fill:rgb(255,204,0)' fill-opacity='0.9' />
+	<circle r='3' cx='320' cy='50' style='stroke:rgb(255,204,0);stroke-width:0.5;fill:rgb(255,204,0)' fill-opacity='0.9' />
+	<polyline style='stroke:rgb(204,0,102);stroke-width:2;fill:none;stroke-dasharray:5,5' points='-50,30 100,30 150,40 ' stroke-opacity='0.7' />
+	<polyline style='stroke:rgb(204,0,102);stroke-width:2;fill:none;stroke-dasharray:5,5' points='150,40 200,45 350,40 ' stroke-opacity='0.7' />
+	<polygon style='stroke:rgb(0,128,0);stroke-width:1;fill:rgb(0,128,0)' points='100,120 140,120 140,160 100,160 100,120 ' fill-opacity='0.5' stroke-opacity='0.5' />
+	<polygon style='stroke:rgb(0,128,0);stroke-width:1;fill:rgb(0,128,0)' points='160,130 190,130 190,160 160,160 160,130 ' fill-opacity='0.5' stroke-opacity='0.5' />
+</svg>
