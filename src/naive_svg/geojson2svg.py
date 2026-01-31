@@ -211,18 +211,10 @@ def _get_anchor_from_fc(fc: geojson.FeatureCollection) -> np.ndarray | None:
         return None
 
     # Get first coordinate
-    if arr.ndim == 1:
-        c = arr
-    else:
-        c = arr[0]
+    c = arr if arr.ndim == 1 else arr[0]
 
     # Ensure 3D
-    if len(c) == 2:
-        c = np.array([c[0], c[1], 0.0])
-    else:
-        c = np.array(c[:3])
-
-    return c
+    return np.array([c[0], c[1], 0.0]) if len(c) == 2 else np.array(c[:3])
 
 
 def geojson_to_enu(
@@ -425,10 +417,7 @@ def _process_feature(
         llas = np.hstack([llas, np.zeros((len(llas), 1))])
 
     # Convert to ENU coordinates
-    if is_enu:
-        enus = llas  # Already ENU coordinates, use directly
-    else:
-        enus = tf.lla2enu(llas, anchor_lla=anchor)
+    enus = llas if is_enu else tf.lla2enu(llas, anchor_lla=anchor)
 
     # Draw geometry
     if geom_type == "Point":
