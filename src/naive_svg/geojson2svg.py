@@ -5,11 +5,15 @@ import json
 import os
 import random
 from pathlib import Path
+from typing import Union
 
 import numpy as np
-from pybind11_geobuf import tf
+from pybind11_geobuf import geojson, tf
 
 from naive_svg import SVG, Color
+
+# Type alias for GeoJSON input: either a file path or a FeatureCollection object
+GeoJSONInput = Union[str, geojson.FeatureCollection]
 
 # Named colors mapping (subset of CSS named colors)
 NAMED_COLORS = {
@@ -165,6 +169,169 @@ def random_stroke():
     return r, g, b
 
 
+def _load_geojson(input_data: GeoJSONInput) -> geojson.FeatureCollection:
+    """
+    Load GeoJSON data from file path or return existing FeatureCollection.
+
+    Args:
+        input_data: Either a file path (str) or a FeatureCollection object
+
+    Returns:
+        FeatureCollection object
+    """
+    if isinstance(input_data, geojson.FeatureCollection):
+        return input_data
+    # Load from file path
+    fc = geojson.FeatureCollection()
+    fc.load(str(input_data))
+    return fc
+
+
+def _get_anchor_from_fc(fc: geojson.FeatureCollection) -> np.ndarray | None:
+    """
+    Extract first coordinate from FeatureCollection for anchor.
+
+    Args:
+        fc: FeatureCollection object
+
+    Returns:
+        3D coordinate array [lon, lat, alt] or None if empty
+    """
+    if len(fc) == 0:
+        return None
+
+    feat = fc[0]
+    geom = feat.geometry()
+    if geom.is_empty():
+        return None
+
+    # Get coordinates as numpy array
+    arr = geom.as_numpy()
+    if arr is None or len(arr) == 0:
+        return None
+
+    # Get first coordinate
+    if arr.ndim == 1:
+        c = arr
+    else:
+        c = arr[0]
+
+    # Ensure 3D
+    if len(c) == 2:
+        c = np.array([c[0], c[1], 0.0])
+    else:
+        c = np.array(c[:3])
+
+    return c
+
+
+def geojson_to_enu(
+    input_data: GeoJSONInput,
+    *,
+    anchor: np.ndarray | list | None = None,
+    inplace: bool = False,
+) -> geojson.FeatureCollection:
+    """
+    Convert GeoJSON coordinates from WGS84 (lon, lat, alt) to ENU coordinates.
+
+    Args:
+        input_data: Either a file path (str) or a FeatureCollection object
+        anchor: Anchor point [lon, lat, alt] for ENU conversion. If None, uses
+                the first coordinate of the first feature.
+        inplace: If True, modify the input FeatureCollection in place (only works
+                 when input_data is a FeatureCollection). If False, returns a clone.
+
+    Returns:
+        FeatureCollection with ENU coordinates
+    """
+    fc = _load_geojson(input_data)
+
+    # Clone if not inplace or if input was a file path
+    if not inplace or isinstance(input_data, str):
+        fc = fc.clone()
+
+    # Determine anchor
+    if anchor is None:
+        anchor_arr = _get_anchor_from_fc(fc)
+        if anchor_arr is None:
+            return fc  # Empty collection
+    else:
+        anchor_arr = np.array(anchor)
+        if len(anchor_arr) == 2:
+            anchor_arr = np.array([anchor_arr[0], anchor_arr[1], 0.0])
+
+    # Convert each feature's coordinates
+    for feat in fc:
+        geom = feat.geometry()
+        if geom.is_empty():
+            continue
+
+        llas = geom.as_numpy()
+        if llas is None or len(llas) == 0:
+            continue
+
+        # Ensure 3D
+        if llas.shape[1] == 2:
+            llas = np.hstack([llas, np.zeros((len(llas), 1))])
+
+        # Convert to ENU
+        enus = tf.lla2enu(llas, anchor_lla=anchor_arr)
+        geom.from_numpy(enus)
+
+    return fc
+
+
+def geojson_to_wgs84(
+    input_data: GeoJSONInput,
+    *,
+    anchor: np.ndarray | list,
+    inplace: bool = False,
+) -> geojson.FeatureCollection:
+    """
+    Convert GeoJSON coordinates from ENU to WGS84 (lon, lat, alt) coordinates.
+
+    Args:
+        input_data: Either a file path (str) or a FeatureCollection object with ENU coordinates
+        anchor: Anchor point [lon, lat, alt] used for the original ENU conversion.
+                This is required to correctly convert back to WGS84.
+        inplace: If True, modify the input FeatureCollection in place (only works
+                 when input_data is a FeatureCollection). If False, returns a clone.
+
+    Returns:
+        FeatureCollection with WGS84 coordinates
+    """
+    fc = _load_geojson(input_data)
+
+    # Clone if not inplace or if input was a file path
+    if not inplace or isinstance(input_data, str):
+        fc = fc.clone()
+
+    # Prepare anchor
+    anchor_arr = np.array(anchor)
+    if len(anchor_arr) == 2:
+        anchor_arr = np.array([anchor_arr[0], anchor_arr[1], 0.0])
+
+    # Convert each feature's coordinates
+    for feat in fc:
+        geom = feat.geometry()
+        if geom.is_empty():
+            continue
+
+        enus = geom.as_numpy()
+        if enus is None or len(enus) == 0:
+            continue
+
+        # Ensure 3D
+        if enus.shape[1] == 2:
+            enus = np.hstack([enus, np.zeros((len(enus), 1))])
+
+        # Convert to WGS84
+        llas = tf.enu2lla(enus, anchor_lla=anchor_arr)
+        geom.from_numpy(llas)
+
+    return fc
+
+
 def _process_feature(
     svg,
     feature_data: dict,
@@ -173,6 +340,7 @@ def _process_feature(
     with_label: bool,
     idx: int,
     use_feature_style: bool,
+    is_enu: bool = False,
 ) -> tuple:
     """
     Process a single GeoJSON feature and add it to SVG.
@@ -200,7 +368,14 @@ def _process_feature(
                 "properties": props,
             }
             sub_min, sub_max = _process_feature(
-                svg, sub_feature, anchor, paint, with_label, idx, use_feature_style
+                svg,
+                sub_feature,
+                anchor,
+                paint,
+                with_label,
+                idx,
+                use_feature_style,
+                is_enu,
             )
             if sub_min is not None:
                 if emin is None:
@@ -221,7 +396,14 @@ def _process_feature(
                 "properties": props,
             }
             sub_min, sub_max = _process_feature(
-                svg, sub_feature, anchor, paint, with_label, idx, use_feature_style
+                svg,
+                sub_feature,
+                anchor,
+                paint,
+                with_label,
+                idx,
+                use_feature_style,
+                is_enu,
             )
             if sub_min is not None:
                 if emin is None:
@@ -243,7 +425,10 @@ def _process_feature(
         llas = np.hstack([llas, np.zeros((len(llas), 1))])
 
     # Convert to ENU coordinates
-    enus = tf.lla2enu(llas, anchor_lla=anchor)
+    if is_enu:
+        enus = llas  # Already ENU coordinates, use directly
+    else:
+        enus = tf.lla2enu(llas, anchor_lla=anchor)
 
     # Draw geometry
     if geom_type == "Point":
@@ -303,9 +488,10 @@ def _process_feature(
 
 
 def geojson2svg(
-    input_path: str,
+    input_data: GeoJSONInput,
     output_path: str,
     *,
+    is_enu: bool = False,
     with_label: bool = False,
     with_grid: bool = True,
     grid_step: float = 100.0,
@@ -315,19 +501,29 @@ def geojson2svg(
     Convert GeoJSON to SVG.
 
     Args:
-        input_path: Path to input GeoJSON file
+        input_data: Path to input GeoJSON file or a FeatureCollection object
         output_path: Path to output SVG file
+        is_enu: If True, input coordinates are already in ENU format (skip lla2enu conversion)
         with_label: Whether to add feature labels
         with_grid: Whether to add grid lines
         grid_step: Grid line spacing in meters
         use_feature_style: Whether to use paint styles from features
     """
-    with Path(input_path).open(encoding="utf-8") as f:
-        data = json.load(f)
+    # Load data from file or use FeatureCollection directly
+    if isinstance(input_data, geojson.FeatureCollection):
+        # Convert FeatureCollection to dict for processing
+        data = json.loads(input_data.to_rapidjson().dumps())
+    else:
+        with Path(input_data).open(encoding="utf-8") as f:
+            data = json.load(f)
 
     svg = SVG(-1, -1)
     bbox = None
     anchor = None
+
+    # For is_enu mode, use a dummy anchor since we don't need coordinate conversion
+    if is_enu:
+        anchor = np.array([0.0, 0.0, 0.0])
 
     def update_bbox(emin, emax):
         nonlocal bbox
@@ -396,6 +592,7 @@ def geojson2svg(
                         with_label,
                         idx,
                         use_feature_style,
+                        is_enu,
                     )
                     update_bbox(emin, emax)
                 idx += 1
@@ -426,6 +623,7 @@ def geojson2svg(
                     with_label,
                     idx,
                     use_feature_style,
+                    is_enu,
                 )
                 update_bbox(emin, emax)
 
@@ -441,15 +639,17 @@ def geojson2svg(
     bbox[2:] += 10.0
     width, height = bbox[2:] - bbox[:2]
 
-    # Convert bbox back to lat/lon for metadata
-    llas = tf.enu2lla([[*bbox[:2], 0.0], [*bbox[2:], 0.0]], anchor_lla=anchor)
-    llas = llas.round(5)[:, :2]
-
     svg.width(width).height(height)
     if with_grid:
         svg.grid_step(grid_step)
     svg.view_box([*bbox[:2], width, height])
-    svg.attrs(f"bbox='{llas.reshape(-1).tolist()}'")
+
+    # Convert bbox back to lat/lon for metadata (only for WGS84 input)
+    if not is_enu:
+        llas = tf.enu2lla([[*bbox[:2], 0.0], [*bbox[2:], 0.0]], anchor_lla=anchor)
+        llas = llas.round(5)[:, :2]
+        svg.attrs(f"bbox='{llas.reshape(-1).tolist()}'")
+
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
     return svg.dump(output_path)
 
