@@ -561,6 +561,7 @@ struct SVG
     SETUP_FLUENT_API(SVG, double, width)
     SETUP_FLUENT_API(SVG, double, height)
     SETUP_FLUENT_API(SVG, std::vector<double>, view_box)
+    SETUP_FLUENT_API(SVG, std::string, transform)
     SETUP_FLUENT_API(SVG, double, grid_step)
     SETUP_FLUENT_API(SVG, std::vector<double>, grid_x)
     SETUP_FLUENT_API(SVG, std::vector<double>, grid_y)
@@ -823,6 +824,11 @@ struct SVG
                 << background_                                   //
                 << "'/>";
         }
+        bool has_transform = !transform_.empty();
+        std::string indent = has_transform ? "\n\t\t" : "\n\t";
+        if (has_transform) {
+            out << "\n\t<g transform='" << transform_ << "'>";
+        }
         double xmin = 0.0, xmax = width_, xstep = grid_step_;
         double ymin = 0.0, ymax = height_, ystep = grid_step_;
         if (grid_x_.size() == 3 && grid_y_.size() == 3) {
@@ -839,16 +845,16 @@ struct SVG
                 grid_color = grid_color_;
             }
             for (double x = xmin; x <= xmax; x += xstep) {
-                out << "\n\t"
+                out << indent
                     << SVG::Polyline({{x, ymin}, {x, ymax}}).stroke(grid_color);
             }
             for (double y = ymin; y <= ymax; y += ystep) {
-                out << "\n\t"
+                out << indent
                     << SVG::Polyline({{xmin, y}, {xmax, y}}).stroke(grid_color);
             }
         }
         for (auto &pair : elements_) {
-            out << "\n\t";
+            out << indent;
             if (pair.first == ELEMENT::POLYGON) {
                 ((Polygon *)pair.second)->write(out);
             } else if (pair.first == ELEMENT::POLYLINE) {
@@ -862,6 +868,9 @@ struct SVG
             } else if (pair.first == ELEMENT::RECT) {
                 ((Rect *)pair.second)->write(out);
             }
+        }
+        if (has_transform) {
+            out << "\n\t</g>";
         }
         out << "\n</svg>";
     }
@@ -885,6 +894,8 @@ struct SVG
     double width_, height_;
     // viewBox
     std::vector<double> view_box_;
+    // transform (wraps all content in <g transform="...">)
+    std::string transform_;
     // grid
     double grid_step_{-1.0};
     std::vector<double> grid_x_, grid_y_; // low, high, step
