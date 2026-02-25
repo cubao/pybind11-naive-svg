@@ -695,6 +695,10 @@ class SVG:
         Convert the SVG to a string representation
         """
     @typing.overload
+    def transform(self) -> str: ...
+    @typing.overload
+    def transform(self, arg0: str) -> SVG: ...
+    @typing.overload
     def view_box(self) -> list[float]: ...
     @typing.overload
     def view_box(self, arg0: collections.abc.Sequence[typing.SupportsFloat]) -> SVG: ...
@@ -800,4 +804,4 @@ def add(arg0: typing.SupportsInt, arg1: typing.SupportsInt) -> int:
     Some other explanation about the add function.
     """
 
-__version__: str = "0.1.0"
+__version__: str = "0.1.2"
