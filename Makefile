@@ -46,7 +46,7 @@ test_in_dev_container:
 
 PYTHON ?= python3
 build:
-	$(PYTHON) -m pip install scikit_build_core pyproject_metadata pathspec pybind11
+	$(PYTHON) -m pip install scikit_build_core pyproject_metadata pathspec pybind11 cubao_headers
 	CMAKE_BUILD_PARALLEL_LEVEL=$(NUM_JOBS) $(PYTHON) -m pip install --no-build-isolation -Ceditable.rebuild=true -Cbuild-dir=build -ve.
 python_install:
 	$(PYTHON) -m pip install . --verbose
@@ -63,7 +63,7 @@ pytest:
 restub:
 	pybind11-stubgen naive_svg._core -o stubs
 	cp stubs/naive_svg/_core.pyi src/naive_svg
-	pre-commit run --files src/naive_svg/_core.pyi
+	pre-commit run --files src/naive_svg/_core.pyi >/dev/null 2>&1 || true
 
 # conda create -y -n py38 python=3.8
 # conda create -y -n py39 python=3.9

@@ -365,6 +365,7 @@ CUBAO_INLINE void bind_naive_svg(py::module &m)
         SETUP_FLUENT_API_PYBIND(SVG, double, width)                 //
         SETUP_FLUENT_API_PYBIND(SVG, double, height)                //
         SETUP_FLUENT_API_PYBIND(SVG, std::vector<double>, view_box) //
+        SETUP_FLUENT_API_PYBIND(SVG, std::string, transform)        //
         SETUP_FLUENT_API_PYBIND(SVG, double, grid_step)             //
         SETUP_FLUENT_API_PYBIND(SVG, std::vector<double>, grid_x)   //
         SETUP_FLUENT_API_PYBIND(SVG, std::vector<double>, grid_y)   //
