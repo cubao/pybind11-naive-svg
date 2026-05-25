@@ -743,4 +743,4 @@ def add(arg0: int, arg1: int) -> int:
     Some other explanation about the add function.
     """
 
-__version__: str = "0.1.3"
+__version__: str = "0.1.4"
